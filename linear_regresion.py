@@ -34,15 +34,7 @@ def calculate_cost(X,theta,y):
   
     return cost
 
-def test_cost():
-    test_set = np.array([[2,3],[4,5]])
-    params = np.array([[0,1,2]])
-    labels= np.array([[9],[15]])
-    
-    cost = calculate_cost(test_set,params,labels)
-    
-    if cost!=0.5:
-        raise Exception
+
 
 def gradient_descent(X, y, theta, alpha, num_iters):
     
@@ -58,8 +50,7 @@ def gradient_descent(X, y, theta, alpha, num_iters):
                 
         theta = theta - (np.dot(lern_rate,error))
 
-def test_gradient_descent():
-    gradient_descent(None,None,None,None,3);
+
 
 def predict(X,theta):
     """
@@ -82,17 +73,7 @@ def predict(X,theta):
     
     return result
 
-def test_predict():
 
-    example = np.array([[1,2,3],[1,5,6]])
-    parameters = np.array([[4,5,6]])
-    
-    p = predict(example,parameters)
-    
-    if p[0] != 32 and p[1] != 65:
-        raise Exception
     
 if __name__ == "__main__":
-    test_predict()
-    test_cost()
-    test_gradient_descent()
+   pass
