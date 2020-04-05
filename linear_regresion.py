@@ -7,8 +7,9 @@ def calculate_cost(X,theta,y):
 
     Parameters
     ----------
-    X : np.array m*n 
-        matrix of n elements to predict with m features.
+    X : np.array m*n+1 
+        matrix of m elements to predict with n features. The first
+        colum must be ones columns
     theta : np.array 1*(n+1) 
         row matrix of linear regresion perarameters.
     Y : np.array m*1
@@ -24,9 +25,6 @@ def calculate_cost(X,theta,y):
     """
     
     m = len(X)
-    
-    X = np.c_[np.ones((m,1)),X]
-
     a = np.dot(X,theta.transpose())-y
     c = a.transpose()
     
@@ -40,11 +38,18 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     """
     X: Examples
     y: labels
+    theta: parameters
+    alpha: learning rate
+    num_iters: iterations of gradient descent
+    
+    return
+    ------
+    cost_histoy an np.array of length num_iters with the cost of every iteration
     """        
     
     m = len(X)
     
-    X = np.c_[np.ones((m,1)),X]
+    cost_history = np.zeros(num_iters)
     
     for i in range(num_iters):
         
@@ -52,12 +57,13 @@ def gradient_descent(X, y, theta, alpha, num_iters):
         
         error = pred - y
         
-        med = alpha / m
+        temp = np.dot(error.transpose(),X)
         
-        lern_rate = med*pred
-                
-        theta = theta - (np.dot(lern_rate.transpose(),error))
-
+        theta = theta - ((alpha/m)*temp)
+        
+        cost_history[i] = calculate_cost(X,theta,y)
+        
+    return (theta,cost_history)
 
 
 def predict(X,theta):
@@ -66,9 +72,9 @@ def predict(X,theta):
 
     Parameters
     ----------
-    X : np.array n*m dim
-        matrix of n elements to predict with m features
-    theta : np.array 1xm dim
+    X : np.array m*n dim
+        matrix of m elements to predict with n features
+    theta : np.array 1*n+1 dim
         row matrix of linear regresion perarameters
     Returns
     -------
