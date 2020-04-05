@@ -28,7 +28,14 @@ def test_cost():
         raise Exception
 
 def test_gradient_descent():
-    ln.gradient_descent(None,None,None,None,3);
+    
+    test_set = np.array([[2,3],[4,5]])
+    labels= np.array([[9],[15]])
+    params = np.array([[0,0,0]])
+    alpha = 0.1
+    num_iters = 3
+    
+    ln.gradient_descent(test_set,labels,params,alpha,num_iters);
 
 if (__name__=="__main__"):
     test_predict()

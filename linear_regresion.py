@@ -37,24 +37,32 @@ def calculate_cost(X,theta,y):
 
 
 def gradient_descent(X, y, theta, alpha, num_iters):
+    """
+    X: Examples
+    y: labels
+    """        
     
     m = len(X)
     
+    X = np.c_[np.ones((m,1)),X]
+    
     for i in range(num_iters):
         
-        predict = np.dot(X,theta.transpose())
+        pred= predict(X,theta)
         
-        error = predict - y
+        error = pred - y
         
-        lern_rate = (alpha/m)*predict
+        med = alpha / m
+        
+        lern_rate = med*pred
                 
-        theta = theta - (np.dot(lern_rate,error))
+        theta = theta - (np.dot(lern_rate.transpose(),error))
 
 
 
 def predict(X,theta):
     """
-    Implementacio``n vectorial 
+    Implementacion vectorial 
 
     Parameters
     ----------
