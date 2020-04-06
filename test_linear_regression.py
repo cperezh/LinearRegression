@@ -34,8 +34,8 @@ def test_cost():
 
 def test_gradient_descent():
     
-    X = np.array([[2],[4],[3]])
-    y= np.array([[9],[15],[10]])
+    X = np.array([[2],[4],[3],[10]])
+    y= np.array([[9],[15],[10],[30]])
     theta = np.array([[1,1]])
     alpha = 0.0001
     num_iters = 5000
