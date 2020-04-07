@@ -42,19 +42,10 @@ def test_gradient_descent():
     
     X_new = np.c_[np.ones((len(X),1)),X]
     
-    fig, axs = plt.subplots(2)
-    
-    axs[0].scatter(X.ravel(),y.ravel())
-    
     theta,cost_history = ln.gradient_descent(X_new,y,theta,alpha,num_iters)
     
-    print(cost_history)
-    
-    axs[1].plot(cost_history)
-    
-    axs[0].plot(X.ravel(),ln.predict(X_new,theta).ravel())
-    
-    print("Prediccion: ",ln.predict(X_new,theta))
+    if cost_history[-1] != 0.7889417649835131:
+        raise Exception
     
 
 if (__name__=="__main__"):
