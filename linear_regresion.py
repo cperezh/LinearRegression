@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt 
 
 def calculate_cost(X,theta,y):
     """
@@ -88,11 +89,10 @@ def predict(X,theta):
     return result
 
 def plot_gradient_descent():
-    X = np.array([[2],[4],[3],[10]])
-    y= np.array([[9],[15],[10],[30]])
+    X,y = file_2_Xy("c:\prueba.csv")
     theta = np.array([[1,1]])
-    alpha = 0.0001
-    num_iters = 5000
+    alpha = 0.001
+    num_iters = 50000
     
     X_new = np.c_[np.ones((len(X),1)),X]
     
@@ -100,13 +100,13 @@ def plot_gradient_descent():
     
     axs[0].scatter(X.ravel(),y.ravel())
     
-    theta,cost_history = ln.gradient_descent(X_new,y,theta,alpha,num_iters)
+    theta,cost_history = gradient_descent(X_new,y,theta,alpha,num_iters)
     
     #for i in range(num_iters):
     axs[1].plot(cost_history)
-    axs[0].plot(X.ravel(),ln.predict(X_new,theta).ravel())
+    axs[0].plot(X.ravel(),predict(X_new,theta).ravel())
     
-    print("Prediccion: ",ln.predict(X_new,theta))
+    print("Prediccion: ",predict(X_new,theta))
 
     
 if __name__ == "__main__":

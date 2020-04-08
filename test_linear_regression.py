@@ -6,7 +6,7 @@ Created on Sun Apr  5 12:17:50 2020
 """
 import numpy as np
 import linear_regresion as ln
-import matplotlib.pyplot as plt 
+
 
 def test_predict():
 
@@ -47,7 +47,6 @@ def test_gradient_descent():
     if cost_history[-1] != 0.7889417649835131:
         raise Exception
     
-
 if (__name__=="__main__"):
     test_predict()
     test_cost()
