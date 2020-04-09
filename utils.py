@@ -15,4 +15,4 @@ def file_2_Xy(path):
     return X,y
 
 if (__name__ == "__main__"):
-    file_2_Xy("c:\prueba.csv")
+    file_2_Xy("prueba.csv")

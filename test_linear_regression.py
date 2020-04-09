@@ -46,8 +46,13 @@ def test_gradient_descent():
     
     if cost_history[-1] != 0.7889417649835131:
         raise Exception
+
+def test_map_feature_2_cuadratic():
+    X = np.array([[1],[2],[3]])
+    print(ln.map_feature_2_cuadratic(X))
     
 if (__name__=="__main__"):
     test_predict()
     test_cost()
     test_gradient_descent()
+    test_map_feature_2_cuadratic()
