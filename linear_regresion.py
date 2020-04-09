@@ -106,8 +106,14 @@ def map_feature_2_cuadratic(X):
     "Si hay mas de un feature"
     if np.size(X,1) != 1:
         raise Exception
+        
+    primera_columna = X[:,0:1]
     
-    X = np.c_[X,X**2]
+   # X = np.c_[X,primera_columna**2]
+    
+   # X = np.c_[X,primera_columna**3]
+    
+    X = np.c_[X,np.exp(primera_columna)]
     
     return X
     

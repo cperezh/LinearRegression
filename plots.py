@@ -12,9 +12,9 @@ import linear_regresion as ln
 def plot_gradient_descent():
     X,y = utl.file_2_Xy("prueba.csv")
     theta = np.array([[1,1,1]])
-    alpha = 0.000001
-    num_iters = 5000
-   
+    alpha = 0.000005
+    num_iters = 2000000
+    
     "Add cuadratic feature"
     X_new = ln.map_feature_2_cuadratic(X)
     
@@ -37,6 +37,8 @@ def plot_gradient_descent():
     axs[0].plot(X.ravel(),ln.predict(X_new,theta).ravel())
     
     print("Prediccion: ",ln.predict(X_new,theta))
+    
+    print("Cost: ",cost_history[-1])
 
     
 if __name__ == "__main__":
