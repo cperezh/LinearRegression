@@ -5,9 +5,10 @@ Created on Fri Apr 10 12:55:49 2020
 @author: Carlos
 """
 import numpy as np
+import matplotlib.pyplot as plt
 
 
-def readData():
+def read_data():
     array = np.loadtxt("data/housing.csv",
                        delimiter=",", dtype=str, skiprows=1)
 
@@ -25,8 +26,15 @@ def readData():
     return X, y
 
 
+def plot_data(X, y):
+    first_feature = X[:, 2:3]
+    plt.box(first_feature.ravel())
+
+
 def model_houseing():
-    X, y = readData()
+    X, y = read_data()
+
+    plot_data(X, y)
 
 
 if __name__ == "__main__":
