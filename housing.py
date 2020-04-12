@@ -16,11 +16,8 @@ def read_data():
 
     labelsColum = 8
 
-    # Delete text feature
-    X = np.delete(array, 9, 1)
-
     # Delete labels columm
-    X = np.delete(X, labelsColum, 1)
+    X = np.delete(array, labelsColum, 1)
 
     # Read labels column
     y = array[:, labelsColum:labelsColum+1]
@@ -63,9 +60,13 @@ def validar(X, y):
         
 
 def plot_data(X, y):
-    first_feature = X[:, 0:1]
-    plt.boxplot(first_feature.ravel())
-
+    
+    fig, axs = plt.subplots(3,3)
+    
+    for i in range(3):
+        for j in range(3):
+            axs[i][j].scatter(X[:, (i*3)+j:(i*3)+j+1].ravel(),y.ravel())
+    
 
 def model_houseing():
     X, y = read_data()
