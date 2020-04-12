@@ -39,12 +39,13 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     """
     X: Examples
     y: labels
-    theta: parameters
+    theta: parameters  np.array 1*n+1 dim
     alpha: learning rate
     num_iters: iterations of gradient descent
     
     return
     ------
+    theta learned parameters
     cost_histoy an np.array of length num_iters with the cost of every iteration
     """        
     
