@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.random import default_rng
 
 
 def calculate_cost(X,theta,y):
@@ -35,9 +36,9 @@ def calculate_cost(X,theta,y):
 
 
 
-def gradient_descent(X, y, theta, alpha, num_iters):
+def gradient_descent(X, y, alpha, num_iters):
     """
-    X: Examples
+    X: Examples np.ndarray
     y: labels
     theta: parameters  np.array 1*n+1 dim
     alpha: learning rate
@@ -48,6 +49,8 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     theta learned parameters
     cost_histoy an np.array of length num_iters with the cost of every iteration
     """        
+    
+    theta = initialize_theta(X.shape[1])
     
     m = len(X)
     
@@ -67,6 +70,34 @@ def gradient_descent(X, y, theta, alpha, num_iters):
         
     return (theta,cost_history)
 
+
+def initialize_theta(size):
+    """
+    
+
+    Parameters
+    ----------
+    size : int
+        Numero de features, incluyendo x0.
+
+    Returns
+    -------
+    theta : np.ndarray
+        Thete parameters with random iniit. 1*size matrix
+
+    """
+    
+    
+    theta = np.empty((1,size))
+    
+    rng = default_rng()
+    
+    for i in range(size):
+        vals = rng.standard_normal()
+        theta[0][i] = vals
+        
+    return theta
+    
 
 def predict(X,theta):
     """

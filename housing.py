@@ -19,16 +19,13 @@ def read_data():
 
     # Delete labels columm
     X = np.delete(array, labelsColum, 1)
+    
+    # Delete string feature column
+    X = np.delete(X, 8, 1)
 
     # Read labels column
     y = array[:, labelsColum:labelsColum+1]
 
-    # validar(X, y)
-
-    # Convert to float
-    X = X.astype(np.float)
-    y = y.astype(np.float)
-    
     # Add ones column
     X_new = np.c_[np.ones((len(X), 1)), X]
 
@@ -50,20 +47,11 @@ def convert(valor):
     return dict[valor.decode()]
 
 
-def validar(X, y):
-    for i in range(len(X)):
-        print(i, " >>>> ", X[i])
-        try:
-            if (i == 290):
-                print(ord(X[i][4]))
-            b = X[i].astype(np.float)
-        except Exception as err:
-            print("b: ", b)
-            print("Error: ", err)
-            raise err
-
-
 def plot_data(X, y):
+    
+    """
+    Plots data in a scatter
+    """
 
     fig, axs = plt.subplots(3, 3)
 
@@ -74,11 +62,10 @@ def plot_data(X, y):
 
 def gradient_descent(X, y):
 
-    theta = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
-    alpha = 0.0000001
-    num_iters = 30000
+    alpha = 0.000000001
+    num_iters = 1000
 
-    theta, cost_history = ln.gradient_descent(X, y, theta, alpha,
+    theta, cost_history = ln.gradient_descent(X, y, alpha,
                                               num_iters)
 
     plt.plot(cost_history)
@@ -103,17 +90,18 @@ def model_houseing():
 
     X, y = read_data()
 
-    X, X_test, y, y_test = split_data(X, y)
+    # X, X_test, y, y_test = split_data(X, y)
 
     # plot_data(X, y)
 
     theta, cost_history = gradient_descent(X, y)
     
-    cost = ln.calculate_cost(X_test, theta, y_test)
+    #cost = ln.calculate_cost(X, theta, y)
     
-    print(float(cost_history[-1]))
+    print("Error cuadratico medio: ",float(cost_history[-1]))
+    print("Error medio: ",int(np.sqrt(cost_history[-1])))
     
-    print(cost)
+    # print(cost)
 
 
 if __name__ == "__main__":
