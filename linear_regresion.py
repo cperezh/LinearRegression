@@ -1,8 +1,16 @@
 import numpy as np
 from numpy.random import default_rng
 
+"""
+TODO 
+1. Normalizar las features
+2. Implementar regresion polinomial
+3. Ver gráfca del Test set en funcion del training set size
+"""
+
 
 def calculate_cost(X,theta,y):
+    
     """
     Calcula el error cuadratico medio de X respecto de Y
     utilizando parametros theta en una Regresion Lineal
@@ -33,7 +41,6 @@ def calculate_cost(X,theta,y):
     cost = (1/(2*m))*np.dot(c,a)
   
     return cost
-
 
 
 def gradient_descent(X, y, alpha, num_iters):
@@ -148,4 +155,39 @@ def map_feature_2_cuadratic(X):
     X = np.c_[X,np.exp(primera_columna)]
     
     return X
+
+
+def normalize_features(X):
+    """
+    Normilize features matrix with mean normalization
+    and feature (max-min) acaling
+
+    Parameters
+    ----------
+    X : np.ndarray
+        n*m+1 features matrix
+
+    Returns
+    -------
+    X : np.ndarray
+        n*m+1 features matrix normalized
+
+    """
+ 
+    # For every feature
+    for i in range(X.shape[1]):
+        
+        mean = np.mean(X[:,i])
+        
+        x_range = X[:,i].max() - X[:,i].min()
+        
+        X[:,i] = (X[:,i] - mean )/ x_range
     
+    return X
+
+
+if __name__ == "__main__":
+    
+    X = np.array([[1.,2.,3.],[4.,5.,6.]])
+    
+    normalize_features(X)

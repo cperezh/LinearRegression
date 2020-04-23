@@ -26,10 +26,7 @@ def read_data():
     # Read labels column
     y = array[:, labelsColum:labelsColum+1]
 
-    # Add ones column
-    X_new = np.c_[np.ones((len(X), 1)), X]
-
-    return X_new, y
+    return X, y
 
 
 def convert(valor):
@@ -62,8 +59,8 @@ def plot_data(X, y):
 
 def gradient_descent(X, y):
 
-    alpha = 0.000000001
-    num_iters = 1000
+    alpha = 0.1
+    num_iters = 20000
 
     theta, cost_history = ln.gradient_descent(X, y, alpha,
                                               num_iters)
@@ -89,12 +86,17 @@ def split_data(X, y):
 def model_houseing():
 
     X, y = read_data()
+    
+    X = ln.normalize_features(X)
+    
+    # Add ones column
+    X_new = np.c_[np.ones((len(X), 1)), X]
 
     # X, X_test, y, y_test = split_data(X, y)
 
     # plot_data(X, y)
 
-    theta, cost_history = gradient_descent(X, y)
+    theta, cost_history = gradient_descent(X_new, y)
     
     #cost = ln.calculate_cost(X, theta, y)
     
