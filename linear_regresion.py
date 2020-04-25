@@ -146,7 +146,7 @@ def map_feature_2_cuadratic(X):
     if np.size(X,1) != 1:
         raise Exception
         
-    primera_columna = X[:,0:1]
+    primera_columna = X[:,[0]]
     
    # X = np.c_[X,primera_columna**2]
     
