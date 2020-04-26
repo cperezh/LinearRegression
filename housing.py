@@ -23,7 +23,9 @@ def read_data():
     
     
     X = ln.one_hot_encoding(X,8)
-
+    
+    X = ln.map_polinomial_features(X,[0,1,2,3,4,5,6,7])
+    
     # Delete string feature column
     #X = np.delete(X, 8, 1)
 
@@ -63,11 +65,11 @@ def plot_data(X, y):
 def gradient_descent(X, y):
 
     alpha = 1
-    num_iters = 1000
+    num_iters = 300
 
     theta, cost_history = ln.gradient_descent(X, y, alpha,
                                               num_iters)
-    
+
     return theta, cost_history
 
 
@@ -99,7 +101,7 @@ def model_houseing():
     cs_train = np.empty(0)
     cs_test = np.empty(0)
     
-    traning_examples = 400
+    traning_examples = 300
     
     for i in range(1,traning_examples):
           theta, cost_history = gradient_descent(X_train[:i,:], y_train[:i,:])

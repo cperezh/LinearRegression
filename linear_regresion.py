@@ -155,6 +155,19 @@ def map_feature_2_cuadratic(X):
     return X
 
 
+def map_polinomial_features(X,list_of_features):
+    
+    X_temp = X[:,list_of_features]
+    
+    for feature in list_of_features:
+        new_feat_cuadratic = X[:,feature:feature+1]**2
+        new_feat_cubic = X[:,feature:feature+1]**2
+        new_feat_exp = np.exp(X[:,feature:feature+1])
+        X = np.concatenate((X,new_feat_cuadratic,new_feat_cubic),1)
+    
+    return X
+
+
 def normalize_features(X):
     """
     Normilize features matrix with mean normalization
