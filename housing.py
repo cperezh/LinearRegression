@@ -20,9 +20,12 @@ def read_data():
 
     # Delete labels columm
     X = np.delete(array, labelsColum, 1)
+    
+    
+    X = ln.one_hot_encoding(X,8)
 
     # Delete string feature column
-    X = np.delete(X, 8, 1)
+    #X = np.delete(X, 8, 1)
 
     # Read labels column
     y = array[:, labelsColum:labelsColum+1]
@@ -60,13 +63,11 @@ def plot_data(X, y):
 def gradient_descent(X, y):
 
     alpha = 1
-    num_iters = 500
+    num_iters = 1000
 
     theta, cost_history = ln.gradient_descent(X, y, alpha,
                                               num_iters)
-
-    # plt.plot(cost_history)
-
+    
     return theta, cost_history
 
 
@@ -84,22 +85,28 @@ def model_houseing():
 
     X = ln.normalize_features(X)
     
-     # Add ones column
+    # Add ones column
     X_new = np.c_[np.ones((len(X), 1)), X]
 
     X_train, X_test, y_train, y_test = split_data(X_new, y)
     
+    # theta, cost_history = gradient_descent(X_train, y_train)
+    
+    # plt.plot(cost_history)
+    
+    # print(np.sqrt(cost_history[-1]))
+    
     cs_train = np.empty(0)
     cs_test = np.empty(0)
     
-    traning_examples = 500
+    traning_examples = 400
     
     for i in range(1,traning_examples):
-         theta, cost_history = gradient_descent(X_train[:i,:], y_train[:i,:])
-         cs_train = np.append(cs_train,np.sqrt(cost_history[-1]))
-         cs_test = np.append(cs_test, np.sqrt(ln.calculate_cost(X_test, theta,
+          theta, cost_history = gradient_descent(X_train[:i,:], y_train[:i,:])
+          cs_train = np.append(cs_train,np.sqrt(cost_history[-1]))
+          cs_test = np.append(cs_test, np.sqrt(ln.calculate_cost(X_test, theta,
                                                                 y_test)))
-         print(i)
+          print(i)
     
     plt.plot(range(traning_examples-1),cs_train, label="train")
     plt.plot(range(traning_examples-1),cs_test, label="test")

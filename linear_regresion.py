@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.random import default_rng
+import sklearn.preprocessing as skl_pre
 
 """
 TODO 
@@ -80,8 +80,6 @@ def gradient_descent(X, y, alpha, num_iters):
 
 def initialize_theta(size):
     """
-    
-
     Parameters
     ----------
     size : int
@@ -97,7 +95,7 @@ def initialize_theta(size):
     
     theta = np.empty((1,size))
     
-    rng = default_rng()
+    rng = np.random.default_rng()
     
     for i in range(size):
         vals = rng.standard_normal()
@@ -185,6 +183,29 @@ def normalize_features(X):
     
     return X
 
+
+def one_hot_encoding(X,feature_column):
+    
+    data = X[:,feature_column:feature_column+1]
+    
+    unique_cat = np.unique(data)
+    
+    categories = np.reshape(unique_cat,(len(unique_cat),1))
+    
+    enccoder = skl_pre.OneHotEncoder()
+    
+    enccoder.fit(categories)
+    
+    new_features = enccoder.transform(data).toarray()
+    
+    # Selecciono las columnas que no sean la de la caracteristica
+    new_colums = np.arange(X.shape[1])[:] != feature_column
+    
+    X = X[:,new_colums]
+    
+    X = np.concatenate((X,new_features),1)
+    
+    return X
 
 if __name__ == "__main__":
     
