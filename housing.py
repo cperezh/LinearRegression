@@ -25,16 +25,25 @@ def read_data():
     # Delete labels columm
     X = np.delete(array, labelsColum, 1)
 
+    return X, y
+
+
+def process_data(X):
+
     # One hot over ocean_proximity feature
     X = ln.one_hot_encoding(X, 8)
 
     # Build sintetic features
-    # X = ln.map_polinomial_features(X, [0, 1, 2, 3, 4, 5, 6, 7])
-    poly = sk_pre.PolynomialFeatures(5)
+    poly = sk_pre.PolynomialFeatures(1)
 
     X = poly.fit_transform(X)
 
-    return X, y
+    X = ln.normalize_features(X)
+
+    # X_new = X[:, [0,1,2,8,9,10,11,12,13]]
+    #X_new = X[:, [0,1,2,8]]
+
+    return X
 
 
 def convert_ocean_proximity(valor):
@@ -52,7 +61,7 @@ def convert_ocean_proximity(valor):
     return dict[valor.decode()]
 
 
-def plot_data(X, y):
+def plot_data_scatter(X, y):
     """
     Plots data in a scatter
     """
@@ -64,10 +73,14 @@ def plot_data(X, y):
             axs[i][j].scatter(X[:, (i*3)+j:(i*3)+j+1].ravel(), y.ravel())
 
 
+def plot_data(X, y):
+
+    plt.scatter(X[:,[8]],y[:])
+
 def gradient_descent(X, y):
 
     alpha = 0.1
-    num_iters = 50
+    num_iters = 3000
 
     theta, cost_history = ln.gradient_descent(X, y, alpha, num_iters)
 
@@ -86,10 +99,7 @@ def model_houseing():
 
     X, y = read_data()
 
-    X = ln.normalize_features(X)
-
-    # Add ones column
-    # X_new = np.c_[np.ones((len(X), 1)), X]
+    X = process_data(X)
 
     X_train, X_test, y_train, y_test = split_data(X, y)
 
@@ -97,7 +107,8 @@ def model_houseing():
 
     plt.plot(cost_history)
 
-    print(np.sqrt(cost_history[-1]))
+    print("Error train:", np.sqrt(cost_history[-1]))
+    print("Error test:", np.sqrt(ln.calculate_cost(X_test, theta, y_test)))
 
     # cs_train = np.empty(0)
     # cs_test = np.empty(0)
@@ -152,5 +163,8 @@ def count_import():
 
 
 if __name__ == "__main__":
-    # count_import()
+
+    # X, y = read_data()
+    # plot_data_scatter(X, y)
+    # plot_data(X, y)
     model_houseing()

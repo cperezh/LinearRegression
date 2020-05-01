@@ -121,41 +121,12 @@ def predict(X,theta):
 
     """
 
-    result = np.dot(X,theta.transpose())
+    result = np.dot(X, theta.transpose())
 
     return result
 
-def map_feature_2_cuadratic(X):
-    """
 
-
-    Parameters
-    ----------
-    X : nparray
-        mapea una matriz de m*1 a m*2. Convierte una feature
-        lineal en cuadratica
-
-    Returns
-    -------
-    nparray m*2.
-
-    """
-    "Si hay mas de un feature"
-    if np.size(X,1) != 1:
-        raise Exception
-
-    primera_columna = X[:,[0]]
-
-   # X = np.c_[X,primera_columna**2]
-
-   # X = np.c_[X,primera_columna**3]
-
-    X = np.c_[X,np.exp(primera_columna)]
-
-    return X
-
-
-def map_polinomial_features(X,list_of_features):
+def map_polinomial_features(X, list_of_features):
 
     X_temp = X[:,list_of_features]
 
