@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import linear_regresion as ln
 import sklearn.model_selection as skl_ms
+import sklearn.preprocessing as sk_pre
 
 
 def read_data():
@@ -28,7 +29,10 @@ def read_data():
     X = ln.one_hot_encoding(X, 8)
 
     # Build sintetic features
-    X = ln.map_polinomial_features(X, [0, 1, 2, 3, 4, 5, 6, 7])
+    # X = ln.map_polinomial_features(X, [0, 1, 2, 3, 4, 5, 6, 7])
+    poly = sk_pre.PolynomialFeatures(5)
+
+    X = poly.fit_transform(X)
 
     return X, y
 
@@ -62,8 +66,8 @@ def plot_data(X, y):
 
 def gradient_descent(X, y):
 
-    alpha = 1
-    num_iters = 300
+    alpha = 0.1
+    num_iters = 50
 
     theta, cost_history = ln.gradient_descent(X, y, alpha, num_iters)
 
@@ -85,36 +89,36 @@ def model_houseing():
     X = ln.normalize_features(X)
 
     # Add ones column
-    X_new = np.c_[np.ones((len(X), 1)), X]
+    # X_new = np.c_[np.ones((len(X), 1)), X]
 
-    X_train, X_test, y_train, y_test = split_data(X_new, y)
+    X_train, X_test, y_train, y_test = split_data(X, y)
 
-    # theta, cost_history = gradient_descent(X_train, y_train)
+    theta, cost_history = gradient_descent(X_train, y_train)
 
-    # plt.plot(cost_history)
+    plt.plot(cost_history)
 
-    # print(np.sqrt(cost_history[-1]))
+    print(np.sqrt(cost_history[-1]))
 
-    cs_train = np.empty(0)
-    cs_test = np.empty(0)
+    # cs_train = np.empty(0)
+    # cs_test = np.empty(0)
 
-    traning_examples = 300
+    # traning_examples = 3000
 
-    for i in range(1, traning_examples):
-        theta, cost_history = gradient_descent(X_train[:i, :],
-                                               y_train[:i, :])
-        cs_train = np.append(cs_train, np.sqrt(cost_history[-1]))
-        cs_test = np.append(cs_test, np.sqrt(ln.calculate_cost(X_test, theta,
-                                                               y_test)))
-        print(i)
+    # for i in range(1, traning_examples):
+    #     theta, cost_history = gradient_descent(X_train[:i, :],
+    #                                            y_train[:i, :])
+    #     cs_train = np.append(cs_train, np.sqrt(cost_history[-1]))
+    #     cs_test = np.append(cs_test, np.sqrt(ln.calculate_cost(X_test, theta,
+    #                                                            y_test)))
+    #     print(i)
 
-    plt.plot(range(traning_examples-1), cs_train, label="train")
-    plt.plot(range(traning_examples-1), cs_test, label="test")
+    # plt.plot(range(traning_examples-1), cs_train, label="train")
+    # plt.plot(range(traning_examples-1), cs_test, label="test")
 
-    plt.legend()
+    # plt.legend()
 
-    print("Error medio train: ", int(cs_train[-1]))
-    print("Error medio Test: ", int(cs_test[-1]))
+    # print("Error medio train: ", int(cs_train[-1]))
+    # print("Error medio Test: ", int(cs_test[-1]))
 
     # print(cost)
 
