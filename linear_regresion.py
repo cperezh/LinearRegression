@@ -3,14 +3,14 @@ import sklearn.preprocessing as skl_pre
 
 """
 TODO
-1. Normalizar las features
-2. Implementar regresion polinomial
-3. Ver gráfca del Test set en funcion del training set size
+    1. Hacer la predicción con normalizacion
+    2. Hace scatter pediccion vs real
+    3. Hacer API para llamar a la predicción
+    4. Utilizar otras librerias de SCIKIT LEARN
 """
 
 
-def calculate_cost(X,theta,y):
-
+def calculate_cost(X, theta, y):
     """
     Calcula el error cuadratico medio de X respecto de Y
     utilizando parametros theta en una Regresion Lineal
@@ -35,10 +35,10 @@ def calculate_cost(X,theta,y):
     """
 
     m = len(X)
-    a = np.dot(X,theta.transpose())-y
+    a = np.dot(X, theta.transpose())-y
     c = a.transpose()
 
-    cost = (1/(2*m))*np.dot(c,a)
+    cost = (1/(2*m))*np.dot(c, a)
 
     return cost
 
@@ -54,7 +54,8 @@ def gradient_descent(X, y, alpha, num_iters):
     return
     ------
     theta learned parameters
-    cost_histoy an np.array of length num_iters with the cost of every iteration
+    cost_histoy an np.array of length num_iters with the cost of
+    every iteration
     """
 
     theta = initialize_theta(X.shape[1])
@@ -65,17 +66,17 @@ def gradient_descent(X, y, alpha, num_iters):
 
     for i in range(num_iters):
 
-        pred= predict(X,theta)
+        pred = predict(X, theta)
 
         error = pred - y
 
-        temp = np.dot(error.transpose(),X)
+        temp = np.dot(error.transpose(), X)
 
         theta = theta - ((alpha/m)*temp)
 
-        cost_history[i] = calculate_cost(X,theta,y)
+        cost_history[i] = calculate_cost(X, theta, y)
 
-    return (theta,cost_history)
+    return (theta, cost_history)
 
 
 def initialize_theta(size):
@@ -92,8 +93,7 @@ def initialize_theta(size):
 
     """
 
-
-    theta = np.empty((1,size))
+    theta = np.empty((1, size))
 
     rng = np.random.default_rng()
 
@@ -104,7 +104,7 @@ def initialize_theta(size):
     return theta
 
 
-def predict(X,theta):
+def predict(X, theta):
     """
     Implementacion vectorial
 
@@ -126,56 +126,13 @@ def predict(X,theta):
     return result
 
 
-def map_polinomial_features(X, list_of_features):
+def one_hot_encoding(X, feature_column):
 
-    X_temp = X[:,list_of_features]
-
-    for feature in list_of_features:
-        new_feat_cuadratic = X[:,feature:feature+1]**2
-        new_feat_cubic = X[:,feature:feature+1]**2
-        new_feat_exp = np.exp(X[:,feature:feature+1])
-        X = np.concatenate((X,new_feat_cuadratic,new_feat_cubic),1)
-
-    return X
-
-
-def normalize_features(X):
-    """
-    Normilize features matrix with mean normalization
-    and feature (max-min) acaling
-
-    Parameters
-    ----------
-    X : np.ndarray
-        n*m+1 features matrix
-
-    Returns
-    -------
-    X : np.ndarray
-        n*m+1 features matrix normalized
-
-    """
-
-    # For every feature
-    for i in range(X.shape[1]):
-
-        mean = np.mean(X[:,i])
-
-        x_range = X[:,i].max() - X[:,i].min()
-
-        if x_range != 0:
-            X[:,i] = (X[:,i] - mean )/ x_range
-
-    return X
-
-
-def one_hot_encoding(X,feature_column):
-
-    data = X[:,feature_column:feature_column+1]
+    data = X[:, feature_column:feature_column+1]
 
     unique_cat = np.unique(data)
 
-    categories = np.reshape(unique_cat,(len(unique_cat),1))
+    categories = np.reshape(unique_cat, (len(unique_cat), 1))
 
     enccoder = skl_pre.OneHotEncoder()
 
@@ -186,14 +143,15 @@ def one_hot_encoding(X,feature_column):
     # Selecciono las columnas que no sean la de la caracteristica
     new_colums = np.arange(X.shape[1])[:] != feature_column
 
-    X = X[:,new_colums]
+    X = X[:, new_colums]
 
-    X = np.concatenate((X,new_features),1)
+    X = np.concatenate((X, new_features), 1)
 
     return X
 
+
 if __name__ == "__main__":
 
-    X = np.array([[1.,2.,3.],[4.,5.,6.]])
+    X = np.array([[1., 2., 3.],[4., 5., 6.]])
 
     normalize_features(X)

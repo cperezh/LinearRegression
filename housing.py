@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import linear_regresion as ln
 import sklearn.model_selection as skl_ms
 import sklearn.preprocessing as sk_pre
+import Normalizer as norma
 
 
 def read_data():
@@ -38,12 +39,14 @@ def process_data(X):
 
     X = poly.fit_transform(X)
 
-    X = ln.normalize_features(X)
+    normalizer = norma.Normalizer()
+
+    X = normalizer.normalize_features(X)
 
     # X_new = X[:, [0,1,2,8,9,10,11,12,13]]
-    #X_new = X[:, [0,1,2,8]]
+    # X_new = X[:, [0,1,2,8]]
 
-    return X
+    return X, normalizer
 
 
 def convert_ocean_proximity(valor):
@@ -75,7 +78,8 @@ def plot_data_scatter(X, y):
 
 def plot_data(X, y):
 
-    plt.scatter(X[:,[8]],y[:])
+    plt.scatter(X[:, [8]], y[:])
+
 
 def gradient_descent(X, y):
 
@@ -99,7 +103,7 @@ def model_houseing():
 
     X, y = read_data()
 
-    X = process_data(X)
+    X, normalizer = process_data(X)
 
     X_train, X_test, y_train, y_test = split_data(X, y)
 
