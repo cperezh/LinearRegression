@@ -99,7 +99,7 @@ def split_data(X, y):
     return X_train, X_test, y_train, y_test
 
 
-def model_houseing():
+def learn_model_houseing():
 
     X, y = read_data()
 
@@ -109,11 +109,21 @@ def model_houseing():
 
     theta, cost_history = gradient_descent(X_train, y_train)
 
-    plt.plot(cost_history)
+    # plt.plot(cost_history)
 
     print("Error train:", np.sqrt(cost_history[-1]))
     print("Error test:", np.sqrt(ln.calculate_cost(X_test, theta, y_test)))
 
+    with open('workfile', 'w') as f:
+        f.write(str(theta))
+
+    with open('workfile') as f2:
+        a = f2.read()
+        t = np.fromstring(a)
+
+    i = 10
+    plt.scatter(range(len(y_train[:i])),y_train[:i],c="b")
+    plt.scatter(range(len(y_train[:i])),ln.predict(X_train[:i],theta),c="r",marker="o")
     # cs_train = np.empty(0)
     # cs_test = np.empty(0)
 
@@ -171,4 +181,4 @@ if __name__ == "__main__":
     # X, y = read_data()
     # plot_data_scatter(X, y)
     # plot_data(X, y)
-    model_houseing()
+    learn_model_houseing()
