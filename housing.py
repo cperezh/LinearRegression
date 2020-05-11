@@ -99,11 +99,10 @@ def split_data(X, y):
     return X_train, X_test, y_train, y_test
 
 
-def learn_model_houseing():
+def learn_model_houseing(X,y):
 
-    X, y = read_data()
 
-    X, normalizer = process_data(X)
+
 
     X_train, X_test, y_train, y_test = split_data(X, y)
 
@@ -114,16 +113,8 @@ def learn_model_houseing():
     print("Error train:", np.sqrt(cost_history[-1]))
     print("Error test:", np.sqrt(ln.calculate_cost(X_test, theta, y_test)))
 
-    with open('workfile', 'w') as f:
-        f.write(str(theta))
+    np.save("theta.npy",theta)
 
-    with open('workfile') as f2:
-        a = f2.read()
-        t = np.fromstring(a)
-
-    i = 10
-    plt.scatter(range(len(y_train[:i])),y_train[:i],c="b")
-    plt.scatter(range(len(y_train[:i])),ln.predict(X_train[:i],theta),c="r",marker="o")
     # cs_train = np.empty(0)
     # cs_test = np.empty(0)
 
@@ -146,6 +137,23 @@ def learn_model_houseing():
     # print("Error medio Test: ", int(cs_test[-1]))
 
     # print(cost)
+
+
+def predict(X, X_new, y):
+
+    theta = np.load("theta.npy")
+
+    # X = normalizer.normalize_features(X, reuse=True)
+
+    y_pred = ln.predict(X_new, theta)
+
+    i = 100
+    plt.scatter(range(len(y[:i])), y[:i], c="b")
+    plt.scatter(range(len(y[:i])), y_pred[:i], c="r", marker="o")
+
+    outliers = X[((y_pred[:,0] - y[:,0]) > 200000)]
+
+    pass
 
 
 def count_import():
@@ -178,7 +186,10 @@ def count_import():
 
 if __name__ == "__main__":
 
-    # X, y = read_data()
+    X, y = read_data()
+
+    X_new, normalizer = process_data(X)
     # plot_data_scatter(X, y)
     # plot_data(X, y)
-    learn_model_houseing()
+    # learn_model_houseing(X, y)
+    predict(X, X_new, y)
