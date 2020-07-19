@@ -10,6 +10,7 @@ import linear_regresion as ln
 import sklearn.model_selection as skl_ms
 import sklearn.preprocessing as sk_pre
 import Normalizer as norma
+from sklearn.ensemble import IsolationForest
 
 
 def read_data():
@@ -81,6 +82,14 @@ def plot_data(X, y):
     plt.scatter(X[:, [8]], y[:])
 
 
+def box_plot_data(X, feature, subplot):
+    subplot.boxplot(X[:, feature], showfliers=True)
+
+
+def hist_data(X, feature, subplot):
+    subplot.hist(X[:, feature])
+
+
 def gradient_descent(X, y):
 
     alpha = 0.1
@@ -149,9 +158,20 @@ def predict(X, X_new, y):
 
     i = 100
     plt.scatter(range(len(y[:i])), y[:i], c="b")
-    plt.scatter(range(len(y[:i])), y_pred[:i], c="r", marker="o")
+    plt.scatter(range(len(y[:i])), y_pred[:i], c="r")
 
-    outliers = X[((y_pred[:,0] - y[:,0]) > 200000)]
+    cost = ln.calculate_cost(X_new[:i], theta, y[:i])
+
+    print("coste: ", np.sqrt(cost))
+
+    lista = enumerate(((y_pred[:, 0] - y[:, 0]) > 200000))
+
+    for i in lista:
+        if i[1]:
+            print(i)
+        break
+
+    outliers = X[((y_pred[:, 0] - y[:, 0]) > 200000)]
 
     pass
 
@@ -184,6 +204,14 @@ def count_import():
     plt.xticks(y_pos, grupo[:, 0])
 
 
+def outliers(X, feature):
+
+    a = X[:, feature:feature+1]
+    clf = IsolationForest(random_state=0).fit_predict(a)
+    pass
+
+
+
 if __name__ == "__main__":
 
     X, y = read_data()
@@ -191,5 +219,9 @@ if __name__ == "__main__":
     X_new, normalizer = process_data(X)
     # plot_data_scatter(X, y)
     # plot_data(X, y)
+    fig, axs = plt.subplots(2, 1)
+    box_plot_data(X, 3, axs[0])
+    hist_data(X, 3, axs[1])
+    outliers(X,3)
     # learn_model_houseing(X, y)
-    predict(X, X_new, y)
+    # predict(X, X_new, y)
