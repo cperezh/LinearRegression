@@ -204,10 +204,22 @@ def count_import():
     plt.xticks(y_pos, grupo[:, 0])
 
 
-def outliers(X, feature):
+def outliers(X, feature_col, subplt):
 
-    a = X[:, feature:feature+1]
-    clf = IsolationForest(random_state=0).fit_predict(a)
+    feature_rows = X[:, feature_col:feature_col+1]
+    outliers = IsolationForest(random_state=0). fit_predict(feature_rows)
+
+    salida = np.ndarray((feature_rows.shape[0], 2))
+
+    salida[:, 0] = feature_rows[:, 0]
+    salida[:, 1] = outliers[:]
+
+    orden = salida[:,0].argsort();
+
+    salida = salida[orden]
+
+    subplt.plot(salida[:, 0],salida[:, 1])
+
     pass
 
 
@@ -219,9 +231,12 @@ if __name__ == "__main__":
     X_new, normalizer = process_data(X)
     # plot_data_scatter(X, y)
     # plot_data(X, y)
-    fig, axs = plt.subplots(2, 1)
-    box_plot_data(X, 3, axs[0])
-    hist_data(X, 3, axs[1])
-    outliers(X,3)
+
+    feature_num = 4
+
+    fig, axs = plt.subplots(3, 1)
+    box_plot_data(X, feature_num, axs[0])
+    hist_data(X, feature_num, axs[1])
+    outliers(X,feature_num, axs[2])
     # learn_model_houseing(X, y)
     # predict(X, X_new, y)
