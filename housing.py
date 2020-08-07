@@ -92,7 +92,7 @@ def hist_data(X, feature, subplot):
 
 def gradient_descent(X, y):
 
-    alpha = 0.1
+    alpha = 0.5
     num_iters = 3000
 
     theta, cost_history = ln.gradient_descent(X, y, alpha, num_iters)
@@ -110,14 +110,11 @@ def split_data(X, y):
 
 def learn_model_houseing(X,y):
 
-
-
-
     X_train, X_test, y_train, y_test = split_data(X, y)
 
     theta, cost_history = gradient_descent(X_train, y_train)
 
-    # plt.plot(cost_history)
+    plt.plot(cost_history)
 
     print("Error train:", np.sqrt(cost_history[-1]))
     print("Error test:", np.sqrt(ln.calculate_cost(X_test, theta, y_test)))
@@ -232,11 +229,11 @@ if __name__ == "__main__":
     # plot_data_scatter(X, y)
     # plot_data(X, y)
 
-    feature_num = 4
+    feature_num = 8
 
-    fig, axs = plt.subplots(3, 1)
-    box_plot_data(X, feature_num, axs[0])
-    hist_data(X, feature_num, axs[1])
-    outliers(X,feature_num, axs[2])
-    # learn_model_houseing(X, y)
+    #fig, axs = plt.subplots(3, 1)
+    #box_plot_data(X, feature_num, axs[0])
+    #hist_data(X, feature_num, axs[1])
+    #outliers(X,feature_num, axs[2])
+    learn_model_houseing(X_new, y)
     # predict(X, X_new, y)
