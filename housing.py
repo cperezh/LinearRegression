@@ -36,9 +36,9 @@ def process_data(X):
     X = ln.one_hot_encoding(X, 8)
 
     # Build sintetic features
-    poly = sk_pre.PolynomialFeatures(1)
+    #poly = sk_pre.PolynomialFeatures(1)
 
-    X = poly.fit_transform(X)
+    #X = poly.fit_transform(X)
 
     normalizer = norma.Normalizer()
 
@@ -93,7 +93,7 @@ def hist_data(X, feature, subplot):
 def gradient_descent(X, y):
 
     alpha = 0.5
-    num_iters = 3000
+    num_iters = 10000
 
     theta, cost_history = ln.gradient_descent(X, y, alpha, num_iters)
 
@@ -145,7 +145,7 @@ def learn_model_houseing(X,y):
     # print(cost)
 
 
-def predict(X, X_new, y):
+def predict(X_new, y):
 
     theta = np.load("theta.npy")
 
@@ -153,24 +153,21 @@ def predict(X, X_new, y):
 
     y_pred = ln.predict(X_new, theta)
 
-    i = 100
-    plt.scatter(range(len(y[:i])), y[:i], c="b")
-    plt.scatter(range(len(y[:i])), y_pred[:i], c="r")
+    i = 2
+    #plt.scatter(range(len(y[:i])), y[:i], c="b")
+    #plt.scatter(range(len(y[:i])), y_pred[:i], c="r")
 
     cost = ln.calculate_cost(X_new[:i], theta, y[:i])
 
     print("coste: ", np.sqrt(cost))
 
-    lista = enumerate(((y_pred[:, 0] - y[:, 0]) > 200000))
+    num_outliers = np.count_nonzero((y_pred[:, 0] - y[:, 0]) > 50000)
+    cost = y_pred[:, 0] - y[:, 0]
+    plt.boxplot(cost)
+    print(np.percentile(cost,[0,10,25,50,75,90,100]))
 
-    for i in lista:
-        if i[1]:
-            print(i)
-        break
-
-    outliers = X[((y_pred[:, 0] - y[:, 0]) > 200000)]
-
-    pass
+    print("outliers: ",num_outliers)
+    print("num examples: ",y_pred.shape[0])
 
 
 def count_import():
@@ -204,7 +201,7 @@ def count_import():
 def outliers(X, feature_col, subplt):
 
     feature_rows = X[:, feature_col:feature_col+1]
-    outliers = IsolationForest(random_state=0). fit_predict(feature_rows)
+    outliers = IsolationForest(random_state=0).fit_predict(feature_rows)
 
     salida = np.ndarray((feature_rows.shape[0], 2))
 
@@ -217,23 +214,37 @@ def outliers(X, feature_col, subplt):
 
     subplt.plot(salida[:, 0],salida[:, 1])
 
-    pass
+    return salida
 
+def delete_outliers(X, y):
 
+    for feature_num in range(X.shape[1]):
+        feature_rows = X[:, feature_num:feature_num+1]
+        outliers = IsolationForest(random_state=0).fit_predict(feature_rows)
+        indices_outliers = outliers==-1
+        num_out = np.count_nonzero(indices_outliers)
+        X = np.delete(X,indices_outliers,0)
+        y = np.delete(y,indices_outliers,0)
+
+    return X,y
 
 if __name__ == "__main__":
 
     X, y = read_data()
 
-    X_new, normalizer = process_data(X)
+    X_without_outliers,y_without_outliers = delete_outliers(X,y)
+
+    X_new, normalizer = process_data(X_without_outliers)
+
+
     # plot_data_scatter(X, y)
     # plot_data(X, y)
 
-    feature_num = 8
+    #feature_num = 7
 
-    #fig, axs = plt.subplots(3, 1)
-    #box_plot_data(X, feature_num, axs[0])
-    #hist_data(X, feature_num, axs[1])
-    #outliers(X,feature_num, axs[2])
-    learn_model_houseing(X_new, y)
-    # predict(X, X_new, y)
+    #fig, axs = plt.subplots(2, 1)
+    #box_plot_data(X_without_outliers, feature_num, axs[0])
+    #hist_data(X_without_outliers, feature_num, axs[1])
+
+    #learn_model_houseing(X_new, y_without_outliers)
+    predict(X_new, y_without_outliers)

@@ -1,0 +1,8 @@
+Error train: 49744.1941906474
+Error test: [[50595.5659412]]
+
+Sin outliers
+------------
+
+Error train: 34745.72324657129
+Error test: [[30780.41502238]]
