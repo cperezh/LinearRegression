@@ -216,15 +216,13 @@ def outliers(X, feature_col, subplt):
 
     return salida
 
-def delete_outliers(X, y):
+def get_outliers(X, y):
 
     for feature_num in range(X.shape[1]):
         feature_rows = X[:, feature_num:feature_num+1]
         outliers = IsolationForest(random_state=0).fit_predict(feature_rows)
-        indices_outliers = outliers==-1
+        indices_outliers = (outliers==-1)+indices_outliers
         num_out = np.count_nonzero(indices_outliers)
-        X = np.delete(X,indices_outliers,0)
-        y = np.delete(y,indices_outliers,0)
 
     return X,y
 
