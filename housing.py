@@ -216,23 +216,29 @@ def outliers(X, feature_col, subplt):
 
     return salida
 
-def get_outliers(X, y):
+def get_outliers(X):
+
+    indices_outliers = np.full((X.shape[0]),False)
 
     for feature_num in range(X.shape[1]):
         feature_rows = X[:, feature_num:feature_num+1]
         outliers = IsolationForest(random_state=0).fit_predict(feature_rows)
-        indices_outliers = (outliers==-1)+indices_outliers
+        outliers_bool = outliers==-1
+        indices_outliers = outliers_bool+indices_outliers
         num_out = np.count_nonzero(indices_outliers)
 
-    return X,y
+    return indices_outliers
 
 if __name__ == "__main__":
 
     X, y = read_data()
 
-    X_without_outliers,y_without_outliers = delete_outliers(X,y)
+    outliers_X = get_outliers(X)
 
-    X_new, normalizer = process_data(X_without_outliers)
+    X_normalized, normalizer = process_data(X)
+
+    X_without_outliers = np.delete(X_normalized,outliers_X,0)
+    y_without_outliers = np.delete(y,outliers_X,0)
 
 
     # plot_data_scatter(X, y)
@@ -244,5 +250,5 @@ if __name__ == "__main__":
     #box_plot_data(X_without_outliers, feature_num, axs[0])
     #hist_data(X_without_outliers, feature_num, axs[1])
 
-    #learn_model_houseing(X_new, y_without_outliers)
-    predict(X_new, y_without_outliers)
+    #learn_model_houseing(X_without_outliers, y_without_outliers)
+    predict(X_without_outliers, y_without_outliers)
