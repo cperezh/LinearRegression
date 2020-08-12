@@ -92,8 +92,8 @@ def hist_data(X, feature, subplot):
 
 def gradient_descent(X, y):
 
-    alpha = 0.5
-    num_iters = 5000
+    alpha = 1.2
+    num_iters = 40000
 
     theta, cost_history = ln.gradient_descent(X, y, alpha, num_iters)
 
@@ -145,25 +145,25 @@ def learn_model_houseing(X,y):
     # print(cost)
 
 
-def predict(X_new, y):
+def predict(X, y):
 
     theta = np.load("theta.npy")
 
     # X = normalizer.normalize_features(X, reuse=True)
 
-    y_pred = ln.predict(X_new, theta)
+    y_pred = ln.predict(X, theta)
 
-    i = 2
-    #plt.scatter(range(len(y[:i])), y[:i], c="b")
-    #plt.scatter(range(len(y[:i])), y_pred[:i], c="r")
+    i = 1000
+    plt.scatter(range(len(y[:i])), y[:i], c="b")
+    plt.scatter(range(len(y[:i])), y_pred[:i], c="r")
 
-    cost = ln.calculate_cost(X_new[:i], theta, y[:i])
+    cost = ln.calculate_cost(X[:i], theta, y[:i])
 
     print("coste: ", np.sqrt(cost))
 
-    num_outliers = np.count_nonzero(abs(y_pred[:, 0] - y[:, 0]) > 50000)
+    num_outliers = np.count_nonzero(abs(y_pred[:, 0] - y[:, 0]) > 60000)
     cost = y_pred[:, 0] - y[:, 0]
-    plt.boxplot(cost)
+    #plt.boxplot(cost)
     print(np.percentile(cost,[0,10,25,50,75,90,100]))
 
     print("outliers: ",num_outliers)
@@ -233,13 +233,13 @@ if __name__ == "__main__":
 
     X, y = read_data()
 
-    #outliers_X = get_outliers(X)
+    outliers_X = get_outliers(X)
 
     X_normalized, normalizer = process_data(X)
 
-    #X_without_outliers = np.delete(X_normalized,outliers_X,0)
+    X_without_outliers = np.delete(X_normalized,outliers_X,0)
 
-    #y_without_outliers = np.delete(y,outliers_X,0)
+    y_without_outliers = np.delete(y,outliers_X,0)
 
     # plot_data_scatter(X, y)
     # plot_data(X, y)
@@ -250,5 +250,6 @@ if __name__ == "__main__":
     #box_plot_data(X_without_outliers, feature_num, axs[0])
     #hist_data(X_without_outliers, feature_num, axs[1])
 
-    learn_model_houseing(X_normalized, y)
+    #learn_model_houseing(X_without_outliers, y_without_outliers)
+    predict(X_without_outliers, y_without_outliers)
     #predict(X_normalized, y)
