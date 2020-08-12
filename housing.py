@@ -161,7 +161,7 @@ def predict(X_new, y):
 
     print("coste: ", np.sqrt(cost))
 
-    num_outliers = np.count_nonzero((y_pred[:, 0] - y[:, 0]) > 50000)
+    num_outliers = np.count_nonzero(abs(y_pred[:, 0] - y[:, 0]) > 50000)
     cost = y_pred[:, 0] - y[:, 0]
     plt.boxplot(cost)
     print(np.percentile(cost,[0,10,25,50,75,90,100]))
@@ -237,9 +237,9 @@ if __name__ == "__main__":
 
     X_normalized, normalizer = process_data(X)
 
-    X_without_outliers = np.delete(X_normalized,outliers_X,0)
-    y_without_outliers = np.delete(y,outliers_X,0)
+    #X_without_outliers = np.delete(X_normalized,outliers_X,0)
 
+    #y_without_outliers = np.delete(y,outliers_X,0)
 
     # plot_data_scatter(X, y)
     # plot_data(X, y)
@@ -250,5 +250,5 @@ if __name__ == "__main__":
     #box_plot_data(X_without_outliers, feature_num, axs[0])
     #hist_data(X_without_outliers, feature_num, axs[1])
 
-    #learn_model_houseing(X_without_outliers, y_without_outliers)
-    predict(X_without_outliers, y_without_outliers)
+    #learn_model_houseing(X_normalized, y)
+    predict(X_normalized, y)
