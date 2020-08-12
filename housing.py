@@ -36,9 +36,9 @@ def process_data(X):
     X = ln.one_hot_encoding(X, 8)
 
     # Build sintetic features
-    #poly = sk_pre.PolynomialFeatures(1)
+    poly = sk_pre.PolynomialFeatures(1)
 
-    #X = poly.fit_transform(X)
+    X = poly.fit_transform(X)
 
     normalizer = norma.Normalizer()
 
@@ -93,7 +93,7 @@ def hist_data(X, feature, subplot):
 def gradient_descent(X, y):
 
     alpha = 0.5
-    num_iters = 10000
+    num_iters = 5000
 
     theta, cost_history = ln.gradient_descent(X, y, alpha, num_iters)
 
@@ -233,7 +233,7 @@ if __name__ == "__main__":
 
     X, y = read_data()
 
-    outliers_X = get_outliers(X)
+    #outliers_X = get_outliers(X)
 
     X_normalized, normalizer = process_data(X)
 
@@ -250,5 +250,5 @@ if __name__ == "__main__":
     #box_plot_data(X_without_outliers, feature_num, axs[0])
     #hist_data(X_without_outliers, feature_num, axs[1])
 
-    #learn_model_houseing(X_normalized, y)
-    predict(X_normalized, y)
+    learn_model_houseing(X_normalized, y)
+    #predict(X_normalized, y)

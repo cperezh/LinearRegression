@@ -153,5 +153,3 @@ def one_hot_encoding(X, feature_column):
 if __name__ == "__main__":
 
     X = np.array([[1., 2., 3.],[4., 5., 6.]])
-
-    normalize_features(X)
