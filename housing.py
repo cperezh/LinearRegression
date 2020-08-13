@@ -253,7 +253,7 @@ def main():
 
     #learn_model_houseing(X_without_outliers, y_without_outliers)
     predict(X_without_outliers, y_without_outliers)
-    #predict(X_normalized, y)
+    #predict(X_normalized[outliers], y[outliers])
 
 def main2():
     X, y = read_data()
