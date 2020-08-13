@@ -153,7 +153,7 @@ def predict(X, y):
 
     y_pred = ln.predict(X, theta)
 
-    i = 1000
+    i = y.shape[0]
     plt.scatter(range(len(y[:i])), y[:i], c="b")
     plt.scatter(range(len(y[:i])), y_pred[:i], c="r")
 
@@ -229,17 +229,18 @@ def get_outliers(X):
 
     return indices_outliers
 
-if __name__ == "__main__":
-
+def main():
     X, y = read_data()
 
-    outliers_X = get_outliers(X)
+    outliers = get_outliers(X)
+
+    outliers = get_outliers(y) + outliers
 
     X_normalized, normalizer = process_data(X)
 
-    X_without_outliers = np.delete(X_normalized,outliers_X,0)
+    X_without_outliers = np.delete(X_normalized,outliers,0)
 
-    y_without_outliers = np.delete(y,outliers_X,0)
+    y_without_outliers = np.delete(y,outliers,0)
 
     # plot_data_scatter(X, y)
     # plot_data(X, y)
@@ -253,3 +254,15 @@ if __name__ == "__main__":
     #learn_model_houseing(X_without_outliers, y_without_outliers)
     predict(X_without_outliers, y_without_outliers)
     #predict(X_normalized, y)
+
+def main2():
+    X, y = read_data()
+
+    plt.boxplot(y)
+
+    outliers_y = get_outliers(y)
+
+if __name__ == "__main__":
+
+    main()
+
