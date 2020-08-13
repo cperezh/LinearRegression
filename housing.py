@@ -11,6 +11,7 @@ import sklearn.model_selection as skl_ms
 import sklearn.preprocessing as sk_pre
 import Normalizer as norma
 from sklearn.ensemble import IsolationForest
+from sklearn.linear_model import LinearRegression
 
 
 def read_data():
@@ -112,7 +113,13 @@ def learn_model_houseing(X,y):
 
     X_train, X_test, y_train, y_test = split_data(X, y)
 
-    theta, cost_history = gradient_descent(X_train, y_train)
+    #theta, cost_history = gradient_descent(X_train, y_train)
+    reg = LinearRegression().fit(X_train, y_train)
+
+    score = reg.score(X_test,y_test)
+
+    print(reg.coef_)
+
 
     plt.plot(cost_history)
 
@@ -251,8 +258,8 @@ def main():
     #box_plot_data(X_without_outliers, feature_num, axs[0])
     #hist_data(X_without_outliers, feature_num, axs[1])
 
-    #learn_model_houseing(X_without_outliers, y_without_outliers)
-    predict(X_without_outliers, y_without_outliers)
+    learn_model_houseing(X_without_outliers, y_without_outliers)
+    #predict(X_without_outliers, y_without_outliers)
     #predict(X_normalized[outliers], y[outliers])
 
 def main2():
