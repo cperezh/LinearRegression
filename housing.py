@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import linear_regresion as ln
 import sklearn.model_selection as skl_ms
 import sklearn.preprocessing as sk_pre
+import sklearn.metrics as sk_metrics
 import Normalizer as norma
 from sklearn.ensemble import IsolationForest
 from sklearn.linear_model import LinearRegression
@@ -37,18 +38,18 @@ def process_data(X):
     X = ln.one_hot_encoding(X, 8)
 
     # Build sintetic features
-    poly = sk_pre.PolynomialFeatures(1)
+    #poly = sk_pre.PolynomialFeatures(1,include_bias=False)
 
-    X = poly.fit_transform(X)
+    #X = poly.fit_transform(X)
 
-    normalizer = norma.Normalizer()
+    #normalizer = norma.Normalizer()
 
-    X = normalizer.normalize_features(X)
+    #X = normalizer.normalize_features(X)
 
     # X_new = X[:, [0,1,2,8,9,10,11,12,13]]
     # X_new = X[:, [0,1,2,8]]
 
-    return X, normalizer
+    return X
 
 
 def convert_ocean_proximity(valor):
@@ -109,47 +110,23 @@ def split_data(X, y):
     return X_train, X_test, y_train, y_test
 
 
-def learn_model_houseing(X,y):
+def learn_model_houseing(X, y):
 
     X_train, X_test, y_train, y_test = split_data(X, y)
 
     #theta, cost_history = gradient_descent(X_train, y_train)
-    reg = LinearRegression().fit(X_train, y_train)
+    reg = LinearRegression(normalize=True).fit(X_train, y_train)
 
     score = reg.score(X_test,y_test)
 
-    print(reg.coef_)
+    print("R2: ", score)
 
+    y_pred = reg.predict(X_test)
 
-    plt.plot(cost_history)
+    print("RMSE: ",sk_metrics.mean_squared_error(y_test, y_pred,squared=False))
 
-    print("Error train:", np.sqrt(cost_history[-1]))
-    print("Error test:", np.sqrt(ln.calculate_cost(X_test, theta, y_test)))
-
-    np.save("theta.npy",theta)
-
-    # cs_train = np.empty(0)
-    # cs_test = np.empty(0)
-
-    # traning_examples = 3000
-
-    # for i in range(1, traning_examples):
-    #     theta, cost_history = gradient_descent(X_train[:i, :],
-    #                                            y_train[:i, :])
-    #     cs_train = np.append(cs_train, np.sqrt(cost_history[-1]))
-    #     cs_test = np.append(cs_test, np.sqrt(ln.calculate_cost(X_test, theta,
-    #                                                            y_test)))
-    #     print(i)
-
-    # plt.plot(range(traning_examples-1), cs_train, label="train")
-    # plt.plot(range(traning_examples-1), cs_test, label="test")
-
-    # plt.legend()
-
-    # print("Error medio train: ", int(cs_train[-1]))
-    # print("Error medio Test: ", int(cs_test[-1]))
-
-    # print(cost)
+    plt.scatter(range(y_test.shape[0]), y_test, c="b")
+    plt.scatter(range(y_test.shape[0]), y_pred, c="r")
 
 
 def predict(X, y):
@@ -243,11 +220,11 @@ def main():
 
     outliers = get_outliers(y) + outliers
 
-    X_normalized, normalizer = process_data(X)
+    X = process_data(X)
 
-    X_without_outliers = np.delete(X_normalized,outliers,0)
+    X_without_outliers = np.delete(X, outliers, 0)
 
-    y_without_outliers = np.delete(y,outliers,0)
+    y_without_outliers = np.delete(y, outliers, 0)
 
     # plot_data_scatter(X, y)
     # plot_data(X, y)
@@ -258,6 +235,7 @@ def main():
     #box_plot_data(X_without_outliers, feature_num, axs[0])
     #hist_data(X_without_outliers, feature_num, axs[1])
 
+    #learn_model_houseing(X, y)
     learn_model_houseing(X_without_outliers, y_without_outliers)
     #predict(X_without_outliers, y_without_outliers)
     #predict(X_normalized[outliers], y[outliers])
