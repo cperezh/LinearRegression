@@ -9,8 +9,13 @@ import matplotlib.pyplot as plt
 import linear_regresion as ln
 import sklearn.model_selection as skl_ms
 import sklearn.preprocessing as sk_pre
+import sklearn.metrics as sk_metrics
 import Normalizer as norma
-from sklearn.ensemble import IsolationForest
+import joblib
+import sklearn.ensemble as sk_ens
+import sklearn.linear_model as sk_lnmodel
+
+_MODEL_FILE = "./reg.joblib"
 
 
 def read_data():
@@ -35,19 +40,11 @@ def process_data(X):
     # One hot over ocean_proximity feature
     X = ln.one_hot_encoding(X, 8)
 
-    # Build sintetic features
-    poly = sk_pre.PolynomialFeatures(1)
+    poly = sk_pre.PolynomialFeatures(3)
 
     X = poly.fit_transform(X)
 
-    normalizer = norma.Normalizer()
-
-    X = normalizer.normalize_features(X)
-
-    # X_new = X[:, [0,1,2,8,9,10,11,12,13]]
-    # X_new = X[:, [0,1,2,8]]
-
-    return X, normalizer
+    return X
 
 
 def convert_ocean_proximity(valor):
@@ -65,204 +62,90 @@ def convert_ocean_proximity(valor):
     return dict[valor.decode()]
 
 
-def plot_data_scatter(X, y):
-    """
-    Plots data in a scatter
-    """
-
-    fig, axs = plt.subplots(3, 3)
-
-    for i in range(3):
-        for j in range(3):
-            axs[i][j].scatter(X[:, (i*3)+j:(i*3)+j+1].ravel(), y.ravel())
-
-
-def plot_data(X, y):
-
-    plt.scatter(X[:, [8]], y[:])
-
-
-def box_plot_data(X, feature, subplot):
-    subplot.boxplot(X[:, feature], showfliers=True)
-
-
-def hist_data(X, feature, subplot):
-    subplot.hist(X[:, feature])
-
-
-def gradient_descent(X, y):
-
-    alpha = 1.2
-    num_iters = 40000
-
-    theta, cost_history = ln.gradient_descent(X, y, alpha, num_iters)
-
-    return theta, cost_history
-
-
-def split_data(X, y):
+def learn_model_houseing(X, y):
 
     X_train, X_test, y_train, y_test = skl_ms.train_test_split(X, y,
                                                                test_size=0.2)
 
-    return X_train, X_test, y_train, y_test
+    reg = sk_lnmodel.LinearRegression(normalize=True).fit(X_train, y_train)
+    ridge = sk_lnmodel.Ridge(alpha=0.5).fit(X_train, y_train)
+
+    score = reg.score(X_test,y_test)
+
+    score_ridge = ridge.score(X_test,y_test)
 
 
-def learn_model_houseing(X,y):
+    print("R2: ", score)
 
-    X_train, X_test, y_train, y_test = split_data(X, y)
+    print("R2_ridge: ", score_ridge)
 
-    theta, cost_history = gradient_descent(X_train, y_train)
+    y_pred = reg.predict(X_test)
 
-    plt.plot(cost_history)
+    print("RMSE: ",
+          sk_metrics.mean_squared_error(y_test, y_pred,squared=False))
 
-    print("Error train:", np.sqrt(cost_history[-1]))
-    print("Error test:", np.sqrt(ln.calculate_cost(X_test, theta, y_test)))
+    plt.scatter(range(y_test.shape[0]), y_test, c="b")
+    plt.scatter(range(y_test.shape[0]), y_pred, c="r")
 
-    np.save("theta.npy",theta)
+    print("Quartiles de error: ",
+          np.percentile(y_test-y_pred, [0,10,25,50,75,90,100]).round(0))
 
-    # cs_train = np.empty(0)
-    # cs_test = np.empty(0)
-
-    # traning_examples = 3000
-
-    # for i in range(1, traning_examples):
-    #     theta, cost_history = gradient_descent(X_train[:i, :],
-    #                                            y_train[:i, :])
-    #     cs_train = np.append(cs_train, np.sqrt(cost_history[-1]))
-    #     cs_test = np.append(cs_test, np.sqrt(ln.calculate_cost(X_test, theta,
-    #                                                            y_test)))
-    #     print(i)
-
-    # plt.plot(range(traning_examples-1), cs_train, label="train")
-    # plt.plot(range(traning_examples-1), cs_test, label="test")
-
-    # plt.legend()
-
-    # print("Error medio train: ", int(cs_train[-1]))
-    # print("Error medio Test: ", int(cs_test[-1]))
-
-    # print(cost)
+    joblib.dump(reg, _MODEL_FILE)
 
 
-def predict(X, y):
 
-    theta = np.load("theta.npy")
+def predict(X):
 
-    # X = normalizer.normalize_features(X, reuse=True)
+    reg = joblib.load(_MODEL_FILE)
 
-    y_pred = ln.predict(X, theta)
+    y_pred = reg.predict(X)
 
-    i = y.shape[0]
-    plt.scatter(range(len(y[:i])), y[:i], c="b")
-    plt.scatter(range(len(y[:i])), y_pred[:i], c="r")
+    return y_pred
 
-    cost = ln.calculate_cost(X[:i], theta, y[:i])
-
-    print("coste: ", np.sqrt(cost))
-
-    num_outliers = np.count_nonzero(abs(y_pred[:, 0] - y[:, 0]) > 60000)
-    cost = y_pred[:, 0] - y[:, 0]
-    #plt.boxplot(cost)
-    print(np.percentile(cost,[0,10,25,50,75,90,100]))
-
-    print("outliers: ",num_outliers)
-    print("num examples: ",y_pred.shape[0])
-
-
-def count_import():
-
-    array = np.genfromtxt("data/housing.csv",
-                          dtype=float, delimiter=",", skip_header=1,
-                          filling_values=0.,
-                          converters={9: convert})
-
-    values = np.unique(array[:, 9])
-
-    grupo = np.empty((0, 2))
-
-    for i, v in enumerate(values[:]):
-
-        solo_i = array[array[:, 9] == v, 8]
-
-        suma = np.sum(solo_i) / len(solo_i)
-
-        grupo = np.append(grupo, np.array([[v, suma]]), 0)
-
-        grupo = grupo[grupo[:, 1].argsort(), :]
-
-    y_pos = np.arange(len(grupo))
-
-    plt.bar(y_pos, grupo[:, 1])
-
-    plt.xticks(y_pos, grupo[:, 0])
-
-
-def outliers(X, feature_col, subplt):
-
-    feature_rows = X[:, feature_col:feature_col+1]
-    outliers = IsolationForest(random_state=0).fit_predict(feature_rows)
-
-    salida = np.ndarray((feature_rows.shape[0], 2))
-
-    salida[:, 0] = feature_rows[:, 0]
-    salida[:, 1] = outliers[:]
-
-    orden = salida[:,0].argsort();
-
-    salida = salida[orden]
-
-    subplt.plot(salida[:, 0],salida[:, 1])
-
-    return salida
 
 def get_outliers(X):
 
     indices_outliers = np.full((X.shape[0]),False)
 
+    iso_forest = sk_ens.IsolationForest(random_state=0)
+
     for feature_num in range(X.shape[1]):
         feature_rows = X[:, feature_num:feature_num+1]
-        outliers = IsolationForest(random_state=0).fit_predict(feature_rows)
+        outliers = iso_forest.fit_predict(feature_rows)
         outliers_bool = outliers==-1
         indices_outliers = outliers_bool+indices_outliers
         num_out = np.count_nonzero(indices_outliers)
 
     return indices_outliers
 
-def main():
+def learn_main():
     X, y = read_data()
 
     outliers = get_outliers(X)
 
     outliers = get_outliers(y) + outliers
 
-    X_normalized, normalizer = process_data(X)
+    X = process_data(X)
 
-    X_without_outliers = np.delete(X_normalized,outliers,0)
+    X_without_outliers = np.delete(X, outliers, 0)
 
-    y_without_outliers = np.delete(y,outliers,0)
+    y_without_outliers = np.delete(y, outliers, 0)
 
-    # plot_data_scatter(X, y)
-    # plot_data(X, y)
+    learn_model_houseing(X_without_outliers, y_without_outliers)
 
-    #feature_num = 7
 
-    #fig, axs = plt.subplots(2, 1)
-    #box_plot_data(X_without_outliers, feature_num, axs[0])
-    #hist_data(X_without_outliers, feature_num, axs[1])
-
-    #learn_model_houseing(X_without_outliers, y_without_outliers)
-    predict(X_without_outliers, y_without_outliers)
-    #predict(X_normalized[outliers], y[outliers])
-
-def main2():
+def predict_main():
     X, y = read_data()
 
-    plt.boxplot(y)
+    X = process_data(X)
 
-    outliers_y = get_outliers(y)
+    y_pred = predict(X[1:2,:]).round(0)
+
+    print(y_pred,y[1])
+
 
 if __name__ == "__main__":
 
-    main()
+    learn_main()
+    #predict_main()
 
