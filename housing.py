@@ -40,7 +40,7 @@ def process_data(X):
     # One hot over ocean_proximity feature
     X = ln.one_hot_encoding(X, 8)
 
-    poly = sk_pre.PolynomialFeatures(3)
+    poly = sk_pre.PolynomialFeatures(8)
 
     X = poly.fit_transform(X)
 
@@ -67,8 +67,8 @@ def learn_model_houseing(X, y):
     X_train, X_test, y_train, y_test = skl_ms.train_test_split(X, y,
                                                                test_size=0.2)
 
-    reg = sk_lnmodel.LinearRegression(normalize=True).fit(X_train, y_train)
-    ridge = sk_lnmodel.Ridge(alpha=0.5).fit(X_train, y_train)
+    #reg = sk_lnmodel.LinearRegression(normalize=True).fit(X_train, y_train)
+    ridge = sk_lnmodel.Ridge(normalize=True, alpha=1000).fit(X_train, y_train)
 
     score = reg.score(X_test,y_test)
 
@@ -125,11 +125,11 @@ def learn_main():
 
     outliers = get_outliers(y) + outliers
 
-    X = process_data(X)
-
     X_without_outliers = np.delete(X, outliers, 0)
 
     y_without_outliers = np.delete(y, outliers, 0)
+
+    X_without_outliers = process_data(X_without_outliers)
 
     learn_model_houseing(X_without_outliers, y_without_outliers)
 
