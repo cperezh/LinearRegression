@@ -40,6 +40,10 @@ def process_data(X):
     # One hot over ocean_proximity feature
     X = ln.one_hot_encoding(X, 8)
 
+    poly = sk_pre.PolynomialFeatures(3)
+
+    X = poly.fit_transform(X)
+
     return X
 
 
@@ -64,10 +68,16 @@ def learn_model_houseing(X, y):
                                                                test_size=0.2)
 
     reg = sk_lnmodel.LinearRegression(normalize=True).fit(X_train, y_train)
+    ridge = sk_lnmodel.Ridge(alpha=0.5).fit(X_train, y_train)
 
     score = reg.score(X_test,y_test)
 
+    score_ridge = ridge.score(X_test,y_test)
+
+
     print("R2: ", score)
+
+    print("R2_ridge: ", score_ridge)
 
     y_pred = reg.predict(X_test)
 
