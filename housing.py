@@ -40,7 +40,7 @@ def process_data(X):
     # One hot over ocean_proximity feature
     X = ln.one_hot_encoding(X, 8)
 
-    poly = sk_pre.PolynomialFeatures(8)
+    poly = sk_pre.PolynomialFeatures(1)
 
     X = poly.fit_transform(X)
 
@@ -68,29 +68,31 @@ def learn_model_houseing(X, y):
                                                                test_size=0.2)
 
     #reg = sk_lnmodel.LinearRegression(normalize=True).fit(X_train, y_train)
-    ridge = sk_lnmodel.Ridge(normalize=True, alpha=1000).fit(X_train, y_train)
+    ridge = sk_lnmodel.Ridge(normalize=True, alpha=1).fit(X_train, y_train)
 
-    score = reg.score(X_test,y_test)
+    score_ridge_train = ridge.score(X_train,y_train)
+    score_ridge_test = ridge.score(X_test,y_test)
 
-    score_ridge = ridge.score(X_test,y_test)
+    print("R2_ridge_train: ", score_ridge_train)
+    print("R2_ridge_test: ", score_ridge_test)
 
+    y_pred_train = ridge.predict(X_train)
+    y_pred_test = ridge.predict(X_test)
 
-    print("R2: ", score)
-
-    print("R2_ridge: ", score_ridge)
-
-    y_pred = reg.predict(X_test)
-
-    print("RMSE: ",
-          sk_metrics.mean_squared_error(y_test, y_pred,squared=False))
+    print("RMSE_train: ",
+          sk_metrics.mean_squared_error(y_pred_train, y_train, squared=False))
+    print("RMSE_test: ",
+          sk_metrics.mean_squared_error(y_pred_test, y_test, squared=False))
 
     plt.scatter(range(y_test.shape[0]), y_test, c="b")
-    plt.scatter(range(y_test.shape[0]), y_pred, c="r")
+    plt.scatter(range(y_test.shape[0]), y_pred_test, c="r")
 
-    print("Quartiles de error: ",
-          np.percentile(y_test-y_pred, [0,10,25,50,75,90,100]).round(0))
+    print("Quartiles de error train: ",
+          np.percentile(y_train-y_pred_train, [0,10,25,50,75,90,100]).round(0))
+    print("Quartiles de error test: ",
+          np.percentile(y_test-y_pred_test, [0,10,25,50,75,90,100]).round(0))
 
-    joblib.dump(reg, _MODEL_FILE)
+    joblib.dump(ridge, _MODEL_FILE)
 
 
 
