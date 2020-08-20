@@ -35,12 +35,12 @@ def read_data():
     return X, y
 
 
-def process_data(X):
+def process_data(X, grado_poli_features=1):
 
     # One hot over ocean_proximity feature
     X = ln.one_hot_encoding(X, 8)
 
-    poly = sk_pre.PolynomialFeatures(1)
+    poly = sk_pre.PolynomialFeatures(grado_poli_features)
 
     X = poly.fit_transform(X)
 
@@ -106,6 +106,22 @@ def predict(X):
 
 
 def get_outliers(X):
+    '''
+
+
+    Parameters
+    ----------
+    X : np array de n x m
+        array con ejemplos en las filas y features en las columnas.
+
+    Returns
+    -------
+    indices_outliers : np array
+        array de tamaño de filas de X con booleanos, donde True
+        indica que esa fila de X es un outiler respecto a los
+        valores de alguna de sus columnas.
+
+    '''
 
     indices_outliers = np.full((X.shape[0]),False)
 
@@ -146,8 +162,27 @@ def predict_main():
     print(y_pred,y[1])
 
 
+def build_new_file_without_outliers():
+
+    X, y = read_data()
+
+    outliers = get_outliers(X)
+
+    outliers = get_outliers(y) + outliers
+
+    with open("data/housing.csv", "r") as f:
+        lines = f.readlines()
+
+    with open("data/housing_new.csv", "w") as f_new:
+        for i in range(len(lines)-1):
+            if not outliers[i]:
+                #el fichero de lineas tiene cabecera
+                f_new.write(lines[i+1])
+
+
 if __name__ == "__main__":
 
-    learn_main()
+    #learn_main()
     #predict_main()
+    build_new_file_without_outliers()
 
