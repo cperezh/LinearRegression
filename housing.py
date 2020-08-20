@@ -157,8 +157,8 @@ def get_outliers(X):
 
 def fit_degree_and_alpha():
 
-    DEGREES = [4,5]
-    ALPHAS = np.arange(0.01,0.06,0.01).round(2)
+    DEGREES = [4,5,6]
+    ALPHAS = np.arange(0.01,0.1,0.01).round(2)
 
     scores = np.empty((len(DEGREES),len(ALPHAS)))
     models = np.empty((len(DEGREES),len(ALPHAS)), dtype = sk_lnmodel.Ridge )
@@ -169,6 +169,10 @@ def fit_degree_and_alpha():
                                                                test_size=0.1)
     X_train, X_val, y_train, y_val = skl_ms.train_test_split(X_train, y_train,
                                                                test_size=0.2)
+
+    max_degree = 0
+    max_score = 0
+    max_model = None
 
     for i, degree in enumerate(DEGREES):
 
@@ -187,14 +191,18 @@ def fit_degree_and_alpha():
                                                       y_val,
                                                       alpha)
 
-
+            if score > max_score:
+                max_score = score
+                max_degree = degree
+                max_model = ridge_model
 
             scores[i,j] = score
-            models[i,j] = ridge_model
 
             print("Score: ",score)
 
-    print("SCORE: --->", scores)
+    print("SCORES: --->", scores)
+    print("MAX SCORE: ",max_score)
+    print("MAX DEGREE: ",max_degree)
 
     for i in range(scores.shape[0]):
         plt.plot(range(scores.shape[1]),scores[i,:], label=DEGREES[i])
@@ -204,9 +212,11 @@ def fit_degree_and_alpha():
     plt.xlabel("ALPHA")
     plt.ylabel("SCORE")
 
-    argmax = np.argmax(score)
+    X_test_processed = process_data(X_test,max_degree)
 
-    score = ridge_model.score(X_test,y_test)
+    score_test = max_model.score(X_test_processed,y_test)
+
+    print("score_val: ",max_score," score_test: ",score_test)
 
 def predict_main():
     X, y = read_data()
