@@ -62,7 +62,7 @@ def convert_ocean_proximity(valor):
     return dict[valor.decode()]
 
 
-def learn_model_houseing(X, y,alpha_val=1):
+def learn_model_houseing(X_train, y_train, X_test, y_test, alpha_val=1):
     '''
     Entrena el modelo sobre X para predecir Y
 
@@ -79,18 +79,16 @@ def learn_model_houseing(X, y,alpha_val=1):
     -------
     score_ridge_test : float
         score sobre el conjunto de test.
+    model: sklearn.linear_model.Ridge
 
     '''
 
-    X_train, X_test, y_train, y_test = skl_ms.train_test_split(X, y,
-                                                               test_size=0.2)
-
     #reg = sk_lnmodel.LinearRegression(normalize=True).fit(X_train, y_train)
-    ridge = sk_lnmodel.Ridge(alpha = alpha_val,
+    ridge_model = sk_lnmodel.Ridge(alpha = alpha_val,
                              normalize=True).fit(X_train, y_train)
 
     #score_ridge_train = ridge.score(X_train,y_train)
-    score_ridge_test = ridge.score(X_test,y_test)
+    score_ridge_test = ridge_model.score(X_test,y_test)
 
     #print("R2_ridge_train: ", score_ridge_train)
     #print("R2_ridge_test: ", score_ridge_test)
@@ -115,7 +113,7 @@ def learn_model_houseing(X, y,alpha_val=1):
 
     #joblib.dump(ridge, _MODEL_FILE)
 
-    return score_ridge_test
+    return score_ridge_test, ridge_model
 
 def predict(X):
 
@@ -159,35 +157,56 @@ def get_outliers(X):
 
 def fit_degree_and_alpha():
 
-    DEGREES = [1, 2, 3, 4, 5, 6, 7,  8]
-    ALPHAS = [0.2, 0.5, 0.8, 1, 1.5, 2, 5, 10, 100]
+    DEGREES = [4,5]
+    ALPHAS = np.arange(0.01,0.06,0.01).round(2)
 
     scores = np.empty((len(DEGREES),len(ALPHAS)))
+    models = np.empty((len(DEGREES),len(ALPHAS)), dtype = sk_lnmodel.Ridge )
 
     X, y = read_data()
+
+    X_train, X_test, y_train, y_test = skl_ms.train_test_split(X, y,
+                                                               test_size=0.1)
+    X_train, X_val, y_train, y_val = skl_ms.train_test_split(X_train, y_train,
+                                                               test_size=0.2)
 
     for i, degree in enumerate(DEGREES):
 
         print("Learning for degree ", degree)
 
+        X_train_processed = process_data(X_train,degree)
+        X_val_processed = process_data(X_val,degree)
+
         for j, alpha in enumerate(ALPHAS):
 
             print("Learning for alpha: ", alpha)
 
-            X_processed = process_data(X,degree)
+            score, ridge_model = learn_model_houseing(X_train_processed,
+                                                      y_train,
+                                                      X_val_processed,
+                                                      y_val,
+                                                      alpha)
 
-            score = learn_model_houseing(X_processed, y, alpha)
+
 
             scores[i,j] = score
+            models[i,j] = ridge_model
 
             print("Score: ",score)
 
     print("SCORE: --->", scores)
 
     for i in range(scores.shape[0]):
-        plt.plot(range(scores.shape[1]),scores[i,:])
+        plt.plot(range(scores.shape[1]),scores[i,:], label=DEGREES[i])
 
+    plt.legend()
+    plt.xticks(ticks=range(len(ALPHAS)), labels=ALPHAS)
+    plt.xlabel("ALPHA")
+    plt.ylabel("SCORE")
 
+    argmax = np.argmax(score)
+
+    score = ridge_model.score(X_test,y_test)
 
 def predict_main():
     X, y = read_data()
