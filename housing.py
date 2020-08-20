@@ -19,7 +19,7 @@ _MODEL_FILE = "./reg.joblib"
 
 
 def read_data():
-    array = np.genfromtxt("data/housing.csv",
+    array = np.genfromtxt("data/housing_new.csv",
                           dtype=float, delimiter=",", skip_header=1,
                           filling_values=0.,
                           converters={9: convert_ocean_proximity})
@@ -62,39 +62,60 @@ def convert_ocean_proximity(valor):
     return dict[valor.decode()]
 
 
-def learn_model_houseing(X, y):
+def learn_model_houseing(X, y,alpha_val=1):
+    '''
+    Entrena el modelo sobre X para predecir Y
+
+    Parameters
+    ----------
+    X : TYPE
+        DESCRIPTION.
+    y : TYPE
+        DESCRIPTION.
+    alpha_val : float
+        regularization parameter
+
+    Returns
+    -------
+    score_ridge_test : float
+        score sobre el conjunto de test.
+
+    '''
 
     X_train, X_test, y_train, y_test = skl_ms.train_test_split(X, y,
                                                                test_size=0.2)
 
     #reg = sk_lnmodel.LinearRegression(normalize=True).fit(X_train, y_train)
-    ridge = sk_lnmodel.Ridge(normalize=True, alpha=1).fit(X_train, y_train)
+    ridge = sk_lnmodel.Ridge(alpha = alpha_val,
+                             normalize=True).fit(X_train, y_train)
 
-    score_ridge_train = ridge.score(X_train,y_train)
+    #score_ridge_train = ridge.score(X_train,y_train)
     score_ridge_test = ridge.score(X_test,y_test)
 
-    print("R2_ridge_train: ", score_ridge_train)
-    print("R2_ridge_test: ", score_ridge_test)
+    #print("R2_ridge_train: ", score_ridge_train)
+    #print("R2_ridge_test: ", score_ridge_test)
 
-    y_pred_train = ridge.predict(X_train)
-    y_pred_test = ridge.predict(X_test)
+    #y_pred_train = ridge.predict(X_train)
+    #y_pred_test = ridge.predict(X_test)
 
-    print("RMSE_train: ",
-          sk_metrics.mean_squared_error(y_pred_train, y_train, squared=False))
-    print("RMSE_test: ",
-          sk_metrics.mean_squared_error(y_pred_test, y_test, squared=False))
+    #print("RMSE_train: ",
+    #      sk_metrics.mean_squared_error(y_pred_train, y_train, squared=False))
+    #print("RMSE_test: ",
+    #      sk_metrics.mean_squared_error(y_pred_test, y_test, squared=False))
 
-    plt.scatter(range(y_test.shape[0]), y_test, c="b")
-    plt.scatter(range(y_test.shape[0]), y_pred_test, c="r")
+    #plt.scatter(range(y_test.shape[0]), y_test, c="b")
+    #plt.scatter(range(y_test.shape[0]), y_pred_test, c="r")
 
-    print("Quartiles de error train: ",
-          np.percentile(y_train-y_pred_train, [0,10,25,50,75,90,100]).round(0))
-    print("Quartiles de error test: ",
-          np.percentile(y_test-y_pred_test, [0,10,25,50,75,90,100]).round(0))
+    #print("Quartiles de error train: ",
+    #      np.percentile(y_train-y_pred_train,
+    #                    [0,10,25,50,75,90,100]).round(0))
+    #print("Quartiles de error test: ",
+    #      np.percentile(y_test-y_pred_test,
+    #                   [0,10,25,50,75,90,100]).round(0))
 
-    joblib.dump(ridge, _MODEL_FILE)
+    #joblib.dump(ridge, _MODEL_FILE)
 
-
+    return score_ridge_test
 
 def predict(X):
 
@@ -136,20 +157,36 @@ def get_outliers(X):
 
     return indices_outliers
 
-def learn_main():
+def fit_degree_and_alpha():
+
+    DEGREES = [1, 2, 3, 4, 5, 6, 7,  8]
+    ALPHAS = [0.2, 0.5, 0.8, 1, 1.5, 2, 5, 10, 100]
+
+    scores = np.empty((len(DEGREES),len(ALPHAS)))
+
     X, y = read_data()
 
-    outliers = get_outliers(X)
+    for i, degree in enumerate(DEGREES):
 
-    outliers = get_outliers(y) + outliers
+        print("Learning for degree ", degree)
 
-    X_without_outliers = np.delete(X, outliers, 0)
+        for j, alpha in enumerate(ALPHAS):
 
-    y_without_outliers = np.delete(y, outliers, 0)
+            print("Learning for alpha: ", alpha)
 
-    X_without_outliers = process_data(X_without_outliers)
+            X_processed = process_data(X,degree)
 
-    learn_model_houseing(X_without_outliers, y_without_outliers)
+            score = learn_model_houseing(X_processed, y, alpha)
+
+            scores[i,j] = score
+
+            print("Score: ",score)
+
+    print("SCORE: --->", scores)
+
+    for i in range(scores.shape[0]):
+        plt.plot(range(scores.shape[1]),scores[i,:])
+
 
 
 def predict_main():
@@ -182,7 +219,7 @@ def build_new_file_without_outliers():
 
 if __name__ == "__main__":
 
-    #learn_main()
+    fit_degree_and_alpha()
     #predict_main()
-    build_new_file_without_outliers()
+    #build_new_file_without_outliers()
 
