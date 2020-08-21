@@ -83,35 +83,10 @@ def learn_model_houseing(X_train, y_train, X_test, y_test, alpha_val=1):
 
     '''
 
-    #reg = sk_lnmodel.LinearRegression(normalize=True).fit(X_train, y_train)
     ridge_model = sk_lnmodel.Ridge(alpha = alpha_val,
                              normalize=True).fit(X_train, y_train)
 
-    #score_ridge_train = ridge.score(X_train,y_train)
     score_ridge_test = ridge_model.score(X_test,y_test)
-
-    #print("R2_ridge_train: ", score_ridge_train)
-    #print("R2_ridge_test: ", score_ridge_test)
-
-    #y_pred_train = ridge.predict(X_train)
-    #y_pred_test = ridge.predict(X_test)
-
-    #print("RMSE_train: ",
-    #      sk_metrics.mean_squared_error(y_pred_train, y_train, squared=False))
-    #print("RMSE_test: ",
-    #      sk_metrics.mean_squared_error(y_pred_test, y_test, squared=False))
-
-    #plt.scatter(range(y_test.shape[0]), y_test, c="b")
-    #plt.scatter(range(y_test.shape[0]), y_pred_test, c="r")
-
-    #print("Quartiles de error train: ",
-    #      np.percentile(y_train-y_pred_train,
-    #                    [0,10,25,50,75,90,100]).round(0))
-    #print("Quartiles de error test: ",
-    #      np.percentile(y_test-y_pred_test,
-    #                   [0,10,25,50,75,90,100]).round(0))
-
-    #joblib.dump(ridge, _MODEL_FILE)
 
     return score_ridge_test, ridge_model
 
@@ -155,9 +130,9 @@ def get_outliers(X):
 
     return indices_outliers
 
-def fit_degree_and_alpha():
+def train():
 
-    DEGREES = [4,5,6]
+    DEGREES = [4, 5, 6]
     ALPHAS = np.arange(0.01,0.1,0.01).round(2)
 
     scores = np.empty((len(DEGREES),len(ALPHAS)))
@@ -168,7 +143,7 @@ def fit_degree_and_alpha():
     X_train, X_test, y_train, y_test = skl_ms.train_test_split(X, y,
                                                                test_size=0.1)
     X_train, X_val, y_train, y_val = skl_ms.train_test_split(X_train, y_train,
-                                                               test_size=0.2)
+                                                               test_size=0.1)
 
     max_degree = 0
     max_score = 0
@@ -195,6 +170,7 @@ def fit_degree_and_alpha():
                 max_score = score
                 max_degree = degree
                 max_model = ridge_model
+                max_alpha = alpha
 
             scores[i,j] = score
 
@@ -217,6 +193,31 @@ def fit_degree_and_alpha():
     score_test = max_model.score(X_test_processed,y_test)
 
     print("score_val: ",max_score," score_test: ",score_test)
+
+    #TRAIN THE MODEL WITH ALL DATA
+    X_final = process_data(X,max_degree)
+    X_test_final = process_data(X_test,max_degree)
+    final_score, final_model = learn_model_houseing(X_final,
+                                                    y,
+                                                    X_test_final,
+                                                    y_test,
+                                                    max_alpha)
+
+    print("final_score: ",final_score)
+
+    y_pred_final = final_model.predict(X_final)
+
+    print("RMSE_final: ",
+          sk_metrics.mean_squared_error(y_pred_final, y, squared=False))
+
+    print("Quartiles de error final: ",
+          np.percentile(y-y_pred_final,
+                       [0,10,25,50,75,90,100]).round(0))
+
+    #Save the model for future prediction
+    joblib.dump(max_model, _MODEL_FILE)
+
+
 
 def predict_main():
     X, y = read_data()
@@ -248,7 +249,7 @@ def build_new_file_without_outliers():
 
 if __name__ == "__main__":
 
-    fit_degree_and_alpha()
+    train()
     #predict_main()
     #build_new_file_without_outliers()
 
