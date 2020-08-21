@@ -132,7 +132,7 @@ def get_outliers(X):
 
 def train():
 
-    DEGREES = [4, 5, 6]
+    DEGREES = [4, 5, 6, 7, 8]
     ALPHAS = np.arange(0.01,0.1,0.01).round(2)
 
     scores = np.empty((len(DEGREES),len(ALPHAS)))
@@ -140,43 +140,50 @@ def train():
 
     X, y = read_data()
 
-    X_train, X_test, y_train, y_test = skl_ms.train_test_split(X, y,
-                                                               test_size=0.1)
-    X_train, X_val, y_train, y_val = skl_ms.train_test_split(X_train, y_train,
-                                                               test_size=0.1)
-
     max_degree = 0
     max_score = 0
     max_model = None
 
-    for i, degree in enumerate(DEGREES):
+    # Ejecutamos sobre varios conjuntos de entrenamiento
+    for k in range(0,10,1):
 
-        print("Learning for degree ", degree)
+        print("-------------------------------")
+        print("ITERACION: ",k)
+        print("-------------------------------")
 
-        X_train_processed = process_data(X_train,degree)
-        X_val_processed = process_data(X_val,degree)
+        X_train, X_test, y_train, y_test = skl_ms.train_test_split(X, y,
+                                                               test_size=0.1)
+        X_train, X_val, y_train, y_val = skl_ms.train_test_split(X_train,
+                                                                 y_train,
+                                                                 test_size=0.1)
 
-        for j, alpha in enumerate(ALPHAS):
+        for i, degree in enumerate(DEGREES):
 
-            print("Learning for alpha: ", alpha)
+            print("Learning for degree ", degree)
 
-            score, ridge_model = learn_model_houseing(X_train_processed,
-                                                      y_train,
-                                                      X_val_processed,
-                                                      y_val,
-                                                      alpha)
+            X_train_processed = process_data(X_train,degree)
+            X_val_processed = process_data(X_val,degree)
 
-            if score > max_score:
-                max_score = score
-                max_degree = degree
-                max_model = ridge_model
-                max_alpha = alpha
+            for j, alpha in enumerate(ALPHAS):
 
-            scores[i,j] = score
+                print("Learning for alpha: ", alpha)
 
-            print("Score: ",score)
+                score, ridge_model = learn_model_houseing(X_train_processed,
+                                                          y_train,
+                                                          X_val_processed,
+                                                          y_val,
+                                                          alpha)
 
-    print("SCORES: --->", scores)
+                if score > max_score:
+                    max_score = score
+                    max_degree = degree
+                    max_model = ridge_model
+                    max_alpha = alpha
+
+                scores[i,j] = score
+
+                print("Score: ",score)
+
     print("MAX SCORE: ",max_score)
     print("MAX DEGREE: ",max_degree)
 
