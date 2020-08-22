@@ -12,7 +12,7 @@ import sklearn.preprocessing as sk_pre
 import sklearn.metrics as sk_metrics
 import joblib
 import sklearn.ensemble as sk_ens
-import sklearn.linear_model as sk_lnmodel
+import sklearn.neural_network as sk_ann
 
 _MODEL_FILE = "./reg.joblib"
 
@@ -61,7 +61,8 @@ def convert_ocean_proximity(valor):
     return dict[valor.decode()]
 
 
-def learn_model_houseing(X_train, y_train, X_test, y_test, alpha_val=1):
+def learn_model_houseing(X_train, y_train, X_test, y_test,  model,
+                         alpha_val=1):
     '''
     Entrena el modelo sobre X para predecir Y
 
@@ -82,12 +83,11 @@ def learn_model_houseing(X_train, y_train, X_test, y_test, alpha_val=1):
 
     '''
 
-    ridge_model = sk_lnmodel.Ridge(alpha=alpha_val,
-                                   normalize=True).fit(X_train, y_train)
+    train_model = model.fit(X_train, y_train)
 
-    score_ridge_test = ridge_model.score(X_test, y_test)
+    score = train_model.score(X_test, y_test)
 
-    return score_ridge_test, ridge_model
+    return score, train_model
 
 
 def predict(X):
@@ -143,8 +143,11 @@ def train():
     max_score = 0
     max_model = None
 
+    model = sk_ann.MLPRegressor(hidden_layer_sizes=(100, 100, 100),
+                                max_iter=20000)
+
     # Ejecutamos sobre varios conjuntos de entrenamiento
-    for k in range(0, 10, 1):
+    for k in range(0, 1, 1):
 
         print("-------------------------------")
         print("ITERACION: ", k)
@@ -158,32 +161,19 @@ def train():
 
         X_train, X_val, y_train, y_val = train_split
 
-        for i, degree in enumerate(DEGREES):
+        train = learn_model_houseing(X_train,
+                                     y_train.ravel(),
+                                     X_val,
+                                     y_val.ravel(),
+                                     model)
 
-            print("Learning for degree ", degree)
+        train_score, train_model = train
 
-            X_train_processed = process_data(X_train, degree)
-            X_val_processed = process_data(X_val, degree)
+        if train_score > max_score:
+            max_score = train_score
+            max_model = train_model
 
-            for j, alpha in enumerate(ALPHAS):
-
-                print("Learning for alpha: ", alpha)
-
-                score, ridge_model = learn_model_houseing(X_train_processed,
-                                                          y_train,
-                                                          X_val_processed,
-                                                          y_val,
-                                                          alpha)
-
-                if score > max_score:
-                    max_score = score
-                    max_degree = degree
-                    max_model = ridge_model
-                    max_alpha = alpha
-
-                scores[i, j] = score
-
-                print("Score: ", score)
+        print("Score: ", train_score)
 
     print("MAX SCORE: ", max_score)
     print("MAX DEGREE: ", max_degree)
@@ -206,10 +196,10 @@ def train():
     X_final = process_data(X, max_degree)
     X_test_final = process_data(X_test, max_degree)
     final_score, final_model = learn_model_houseing(X_final,
-                                                    y,
+                                                    y.ravel(),
                                                     X_test_final,
-                                                    y_test,
-                                                    max_alpha)
+                                                    y_test.ravel(),
+                                                    model)
 
     print("final_score: ", final_score)
 
