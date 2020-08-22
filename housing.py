@@ -129,13 +129,13 @@ def get_outliers(X):
 
     return indices_outliers
 
+
 def train():
 
     DEGREES = [4, 5, 6, 7, 8]
-    ALPHAS = np.arange(0.01,0.1,0.01).round(2)
+    ALPHAS = np.arange(0.01, 0.1, 0.01).round(2)
 
-    scores = np.empty((len(DEGREES),len(ALPHAS)))
-    models = np.empty((len(DEGREES),len(ALPHAS)), dtype = sk_lnmodel.Ridge )
+    scores = np.empty((len(DEGREES), len(ALPHAS)))
 
     X, y = read_data()
 
@@ -144,24 +144,26 @@ def train():
     max_model = None
 
     # Ejecutamos sobre varios conjuntos de entrenamiento
-    for k in range(0,10,1):
+    for k in range(0, 10, 1):
 
         print("-------------------------------")
-        print("ITERACION: ",k)
+        print("ITERACION: ", k)
         print("-------------------------------")
 
-        X_train, X_test, y_train, y_test = skl_ms.train_test_split(X, y,
-                                                               test_size=0.1)
-        X_train, X_val, y_train, y_val = skl_ms.train_test_split(X_train,
-                                                                 y_train,
-                                                                 test_size=0.1)
+        test_set_split = skl_ms.train_test_split(X, y, test_size=0.1)
+
+        X_train, X_test, y_train, y_test = test_set_split
+
+        train_split = skl_ms.train_test_split(X_train, y_train, test_size=0.1)
+
+        X_train, X_val, y_train, y_val = train_split
 
         for i, degree in enumerate(DEGREES):
 
             print("Learning for degree ", degree)
 
-            X_train_processed = process_data(X_train,degree)
-            X_val_processed = process_data(X_val,degree)
+            X_train_processed = process_data(X_train, degree)
+            X_val_processed = process_data(X_val, degree)
 
             for j, alpha in enumerate(ALPHAS):
 
@@ -179,37 +181,37 @@ def train():
                     max_model = ridge_model
                     max_alpha = alpha
 
-                scores[i,j] = score
+                scores[i, j] = score
 
-                print("Score: ",score)
+                print("Score: ", score)
 
-    print("MAX SCORE: ",max_score)
-    print("MAX DEGREE: ",max_degree)
+    print("MAX SCORE: ", max_score)
+    print("MAX DEGREE: ", max_degree)
 
     for i in range(scores.shape[0]):
-        plt.plot(range(scores.shape[1]),scores[i,:], label=DEGREES[i])
+        plt.plot(range(scores.shape[1]), scores[i, :], label=DEGREES[i])
 
     plt.legend()
     plt.xticks(ticks=range(len(ALPHAS)), labels=ALPHAS)
     plt.xlabel("ALPHA")
     plt.ylabel("SCORE")
 
-    X_test_processed = process_data(X_test,max_degree)
+    X_test_processed = process_data(X_test, max_degree)
 
-    score_test = max_model.score(X_test_processed,y_test)
+    score_test = max_model.score(X_test_processed, y_test)
 
-    print("score_val: ",max_score," score_test: ",score_test)
+    print("score_val: ", max_score, " score_test: ", score_test)
 
-    #TRAIN THE MODEL WITH ALL DATA
-    X_final = process_data(X,max_degree)
-    X_test_final = process_data(X_test,max_degree)
+    # TRAIN THE MODEL WITH ALL DATA
+    X_final = process_data(X, max_degree)
+    X_test_final = process_data(X_test, max_degree)
     final_score, final_model = learn_model_houseing(X_final,
                                                     y,
                                                     X_test_final,
                                                     y_test,
                                                     max_alpha)
 
-    print("final_score: ",final_score)
+    print("final_score: ", final_score)
 
     y_pred_final = final_model.predict(X_final)
 
@@ -218,11 +220,10 @@ def train():
 
     print("Quartiles de error final: ",
           np.percentile(y-y_pred_final,
-                       [0,10,25,50,75,90,100]).round(0))
+                        [0, 10, 25, 50, 75, 90, 100]).round(0))
 
-    #Save the model for future prediction
+    # Save the model for future prediction
     joblib.dump(max_model, _MODEL_FILE)
-
 
 
 def predict_main():
@@ -230,9 +231,9 @@ def predict_main():
 
     X = process_data(X)
 
-    y_pred = predict(X[1:2,:]).round(0)
+    y_pred = predict(X[1:2, :]).round(0)
 
-    print(y_pred,y[1])
+    print(y_pred, y[1])
 
 
 def build_new_file_without_outliers():
@@ -249,13 +250,12 @@ def build_new_file_without_outliers():
     with open("data/housing_new.csv", "w") as f_new:
         for i in range(len(lines)-1):
             if not outliers[i]:
-                #el fichero de lineas tiene cabecera
+                # el fichero de lineas tiene cabecera
                 f_new.write(lines[i+1])
 
 
 if __name__ == "__main__":
 
     train()
-    #predict_main()
-    #build_new_file_without_outliers()
-
+    # predict_main()
+    # build_new_file_without_outliers()
