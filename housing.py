@@ -10,7 +10,6 @@ import linear_regresion as ln
 import sklearn.model_selection as skl_ms
 import sklearn.preprocessing as sk_pre
 import sklearn.metrics as sk_metrics
-import Normalizer as norma
 import joblib
 import sklearn.ensemble as sk_ens
 import sklearn.linear_model as sk_lnmodel
@@ -83,12 +82,13 @@ def learn_model_houseing(X_train, y_train, X_test, y_test, alpha_val=1):
 
     '''
 
-    ridge_model = sk_lnmodel.Ridge(alpha = alpha_val,
-                             normalize=True).fit(X_train, y_train)
+    ridge_model = sk_lnmodel.Ridge(alpha=alpha_val,
+                                   normalize=True).fit(X_train, y_train)
 
-    score_ridge_test = ridge_model.score(X_test,y_test)
+    score_ridge_test = ridge_model.score(X_test, y_test)
 
     return score_ridge_test, ridge_model
+
 
 def predict(X):
 
@@ -117,16 +117,15 @@ def get_outliers(X):
 
     '''
 
-    indices_outliers = np.full((X.shape[0]),False)
+    indices_outliers = np.full((X.shape[0]), False)
 
     iso_forest = sk_ens.IsolationForest(random_state=0)
 
     for feature_num in range(X.shape[1]):
         feature_rows = X[:, feature_num:feature_num+1]
         outliers = iso_forest.fit_predict(feature_rows)
-        outliers_bool = outliers==-1
+        outliers_bool = outliers == -1
         indices_outliers = outliers_bool+indices_outliers
-        num_out = np.count_nonzero(indices_outliers)
 
     return indices_outliers
 
